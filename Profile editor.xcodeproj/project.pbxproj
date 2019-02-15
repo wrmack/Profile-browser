@@ -319,13 +319,14 @@
 				41C9B8AF2215575100266A74 /* AnyCodable library */,
 				41C9B8B32215575100266A74 /* JOSE library */,
 				41C9B8EF2215575100266A74 /* Models */,
+				41C9B8FE2215575100266A74 /* Utilities */,
 				41C9B8F72215575100266A74 /* Workers */,
-				41C9B8EB2215575100266A74 /* AuthenticateWithProviderWorker.swift */,
+				41C9B8F62215575100266A74 /* AuthenticateWithProviderViewController.swift */,
+				41C9B8F52215575100266A74 /* AuthenticateWithProviderInteractor.swift */,
 				41C9B8EC2215575100266A74 /* AuthenticateWithProviderPresenter.swift */,
+				41C9B8EB2215575100266A74 /* AuthenticateWithProviderWorker.swift */,
 				41C9B8ED2215575100266A74 /* AuthenticateWithProviderRouter.swift */,
 				41C9B8EE2215575100266A74 /* AuthenticateWithProviderModels.swift */,
-				41C9B8F52215575100266A74 /* AuthenticateWithProviderInteractor.swift */,
-				41C9B8F62215575100266A74 /* AuthenticateWithProviderViewController.swift */,
 			);
 			path = "Authenticate with provider";
 			sourceTree = "<group>";
@@ -465,7 +466,6 @@
 				41C9B8FB2215575100266A74 /* AuthorizationResponse.swift */,
 				41C9B8FC2215575100266A74 /* AuthorizationRequest.swift */,
 				41C9B8FD2215575100266A74 /* AuthenticationSession.swift */,
-				41C9B8FE2215575100266A74 /* Utilities */,
 				41C9B9042215575100266A74 /* TokenManager.swift */,
 				41C9B9052215575100266A74 /* RegistrationResponse.swift */,
 			);

@@ -13,7 +13,7 @@
 import UIKit
 
 @objc protocol EditProfileRoutingLogic {
-  //func routeToSomewhere(segue: UIStoryboardSegue?)
+    func navigateToAuthentication()
 }
 
 protocol EditProfileDataPassing {
@@ -26,6 +26,10 @@ class EditProfileRouter: NSObject, EditProfileRoutingLogic, EditProfileDataPassi
   
   // MARK: Routing
   
+    func navigateToAuthentication() {
+        let authenticationVC = AuthenticateWithProviderViewController()
+        viewController!.show(authenticationVC, sender: nil)
+    }
   //func routeToSomewhere(segue: UIStoryboardSegue?)
   //{
   //  if let segue = segue {

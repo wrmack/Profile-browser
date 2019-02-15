@@ -106,7 +106,11 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
         let object = (objectTextField.text!, selectedItem.object.1)
         let triple = Triple(index: selectedItem.index, subject: subject, predicate: predicate, object: object)
         let request = EditProfile.EditTriple.Request(triple: triple)
-        interactor?.saveTriple(request: request)
+        interactor?.saveTriple(request: request, callback: { message in
+            if message == "unauthorized" {
+                self.router!.navigateToAuthentication()
+            }
+        })
     }
 
 

@@ -28,11 +28,8 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
     var interactor: AuthenticateWithProviderBusinessLogic?
     var router: (NSObjectProtocol & AuthenticateWithProviderRoutingLogic & AuthenticateWithProviderDataPassing)?
     var logText = NSMutableAttributedString()
+    var messageTextView: UITextView?
  
-    
-    @IBOutlet weak var textField: UITextField!
-    @IBOutlet weak var textView: UITextView!
-    @IBOutlet weak var userInfoButton: UIButton!
     
     // MARK: - Object lifecycle
 
@@ -73,37 +70,22 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
         }
     }
     
-    // MARK: - User actions
-    
-    @IBAction func cancelButtonPressed(_ sender: Any) {
-        performSegue(withIdentifier: "UnwindFromAuth", sender: sender)
-    }
-    
-    @IBAction func userInfoButtonPressed(_ sender: Any) {
-        fetchUserInfo()
-    }
-    
-    @IBAction func logoutButtonPressed(_ sender: Any) {
-        logout()
-    }
-    
     
     // MARK: - View lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        textField.delegate = self
-//        textField.text = "https://warwicks-macbook.local:8443"
+
+        messageTextView = UITextView(frame: CGRect.zero, textContainer: nil)
+        view.addSubview(messageTextView!)
+        messageTextView!.layoutManager.allowsNonContiguousLayout = false
+        messageTextView?.translatesAutoresizingMaskIntoConstraints = false
+        messageTextView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        messageTextView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        messageTextView?.topAnchor.constraint(equalTo: view.topAnchor, constant: 100).isActive = true
+        messageTextView?.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant:-20).isActive = true
         
-        textView.layoutManager.allowsNonContiguousLayout = false
-        
-        var savedProvider: Provider?
-        if let data = UserDefaults.standard.object(forKey: "Provider") as? Data  {
-            savedProvider = try? JSONDecoder().decode(Provider.self, from: data)
-        }
-        if savedProvider != nil {
-            textField.text = savedProvider!.name
-        }
+
         
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(handleMessageNotifications(notification: )), name: Notification.Name(rawValue: "MessageNotification"), object: nil)
@@ -168,9 +150,9 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
             logText.append(viewModel.message!)
         }
         DispatchQueue.main.async {
-            self.textView.attributedText = self.logText
-            let bottom = NSMakeRange(self.textView.attributedText.length - 1, 1)
-            self.textView.scrollRangeToVisible(bottom)
+            self.messageTextView!.attributedText = self.logText
+            let bottom = NSMakeRange(self.messageTextView!.attributedText.length - 1, 1)
+            self.messageTextView!.scrollRangeToVisible(bottom)
         }
     }
     
