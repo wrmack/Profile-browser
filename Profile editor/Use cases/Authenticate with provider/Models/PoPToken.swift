@@ -115,6 +115,7 @@ class POPToken: NSObject {
         
         // Create JWS
         self.token = "\(combined).\(TokenUtilities.encodeBase64urlNoPadding(signature!)!)"
+        // test
     }
     
     override init() {
