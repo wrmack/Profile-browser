@@ -263,17 +263,36 @@ class TokenRequest: NSObject, Codable {
     
     // POP
     func createKeysForPOP()-> String? {
+        var privateKey: SecKey
         let tag = "com.wm.POD-browser".data(using: .utf8)!
-        let attributes: [String: Any] =
-            [kSecAttrKeyType as String:  kSecAttrKeyTypeRSA,
-             kSecAttrKeySizeInBits as String: 2048,
-             kSecPrivateKeyAttrs as String:
-                [kSecAttrApplicationTag as String: tag]
-        ]
-        var error: Unmanaged<CFError>?
-        guard let privateKey = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
-            print(error!.takeRetainedValue() as Error)
-            return nil
+        
+        // Check if stored in keychain
+        let query: [String: Any] =
+            [
+                kSecClass as String: kSecClassKey,
+                kSecAttrApplicationTag as String: tag,
+                kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
+                kSecReturnRef as String: true
+            ]
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        if status == errSecSuccess {
+            privateKey = item as! SecKey
+        }
+        else {
+            // Generate a private key
+            let attributes: [String: Any] =
+                [
+                    kSecAttrKeyType as String:  kSecAttrKeyTypeRSA,
+                    kSecAttrKeySizeInBits as String: 2048,
+                    kSecPrivateKeyAttrs as String: [kSecAttrIsPermanent as String: true, kSecAttrApplicationTag as String: tag]
+                ]
+            var error: Unmanaged<CFError>?
+            privateKey = SecKeyCreateRandomKey(attributes as CFDictionary, &error)!
+            if error != nil {
+                print(error!.takeRetainedValue() as Error)
+                return nil
+            }
         }
         
         let publicKey = SecKeyCopyPublicKey(privateKey)
@@ -297,6 +316,10 @@ class TokenRequest: NSObject, Codable {
         let b64Encoded = TokenUtilities.encodeBase64urlNoPadding(json)
         print("Encoded key: \(b64Encoded!)")
         return b64Encoded
+    }
+    
+    func removeAllKeysFromKeychain() {
+        
     }
 }
 

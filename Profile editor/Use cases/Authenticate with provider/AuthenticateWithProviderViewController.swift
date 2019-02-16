@@ -29,9 +29,15 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
     var router: (NSObjectProtocol & AuthenticateWithProviderRoutingLogic & AuthenticateWithProviderDataPassing)?
     var logText = NSMutableAttributedString()
     var messageTextView: UITextView?
+    var webId: String?
  
     
     // MARK: - Object lifecycle
+    
+    convenience init(webId: String) {
+        self.init()
+        self.webId = webId
+    }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -85,13 +91,17 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
         messageTextView?.topAnchor.constraint(equalTo: view.topAnchor, constant: 100).isActive = true
         messageTextView?.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant:-20).isActive = true
         
-
-        
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(handleMessageNotifications(notification: )), name: Notification.Name(rawValue: "MessageNotification"), object: nil)
         
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        let components = URLComponents(string: webId!)
+        let issuerString = "\(components!.scheme!)://\(components!.host!):\(components!.port!)"
+        fetchConfiguration(issuer: issuerString)
+    }
     
     // MARK: - VIP
 

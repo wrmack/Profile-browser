@@ -84,7 +84,7 @@
 		41C9B93B2215575200266A74 /* AuthenticateWithProviderPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C9B8EC2215575100266A74 /* AuthenticateWithProviderPresenter.swift */; };
 		41C9B93C2215575200266A74 /* AuthenticateWithProviderRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C9B8ED2215575100266A74 /* AuthenticateWithProviderRouter.swift */; };
 		41C9B93D2215575200266A74 /* AuthenticateWithProviderModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C9B8EE2215575100266A74 /* AuthenticateWithProviderModels.swift */; };
-		41C9B93E2215575200266A74 /* PoPToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C9B8F02215575100266A74 /* PoPToken.swift */; };
+		41C9B93E2215575200266A74 /* POPToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C9B8F02215575100266A74 /* POPToken.swift */; };
 		41C9B93F2215575200266A74 /* AccessToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C9B8F12215575100266A74 /* AccessToken.swift */; };
 		41C9B9402215575200266A74 /* IDToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C9B8F22215575100266A74 /* IDToken.swift */; };
 		41C9B9412215575200266A74 /* AuthState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C9B8F32215575100266A74 /* AuthState.swift */; };
@@ -186,7 +186,7 @@
 		41C9B8EC2215575100266A74 /* AuthenticateWithProviderPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticateWithProviderPresenter.swift; sourceTree = "<group>"; };
 		41C9B8ED2215575100266A74 /* AuthenticateWithProviderRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticateWithProviderRouter.swift; sourceTree = "<group>"; };
 		41C9B8EE2215575100266A74 /* AuthenticateWithProviderModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticateWithProviderModels.swift; sourceTree = "<group>"; };
-		41C9B8F02215575100266A74 /* PoPToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoPToken.swift; sourceTree = "<group>"; };
+		41C9B8F02215575100266A74 /* POPToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = POPToken.swift; sourceTree = "<group>"; };
 		41C9B8F12215575100266A74 /* AccessToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessToken.swift; sourceTree = "<group>"; };
 		41C9B8F22215575100266A74 /* IDToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IDToken.swift; sourceTree = "<group>"; };
 		41C9B8F32215575100266A74 /* AuthState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthState.swift; sourceTree = "<group>"; };
@@ -318,8 +318,8 @@
 			children = (
 				41C9B8AF2215575100266A74 /* AnyCodable library */,
 				41C9B8B32215575100266A74 /* JOSE library */,
-				41C9B8EF2215575100266A74 /* Models */,
 				41C9B8FE2215575100266A74 /* Utilities */,
+				41C9B8EF2215575100266A74 /* Models */,
 				41C9B8F72215575100266A74 /* Workers */,
 				41C9B8F62215575100266A74 /* AuthenticateWithProviderViewController.swift */,
 				41C9B8F52215575100266A74 /* AuthenticateWithProviderInteractor.swift */,
@@ -344,11 +344,11 @@
 		41C9B8B32215575100266A74 /* JOSE library */ = {
 			isa = PBXGroup;
 			children = (
+				41C9B8CF2215575100266A74 /* JWK */,
 				41C9B8B42215575100266A74 /* JWS */,
+				41C9B8DD2215575100266A74 /* JWE */,
 				41C9B8B92215575100266A74 /* CryptoInterface */,
 				41C9B8C22215575100266A74 /* CryptoImplementation */,
-				41C9B8CF2215575100266A74 /* JWK */,
-				41C9B8DD2215575100266A74 /* JWE */,
 				41C9B8E22215575100266A74 /* Common */,
 			);
 			path = "JOSE library";
@@ -368,14 +368,14 @@
 		41C9B8B92215575100266A74 /* CryptoInterface */ = {
 			isa = PBXGroup;
 			children = (
-				41C9B8BA2215575100266A74 /* AESDecrypter.swift */,
 				41C9B8BB2215575100266A74 /* RSAEncrypter.swift */,
-				41C9B8BC2215575100266A74 /* ECSigner.swift */,
 				41C9B8BD2215575100266A74 /* RSADecrypter.swift */,
 				41C9B8BE2215575100266A74 /* RSASigner.swift */,
-				41C9B8BF2215575100266A74 /* AESEncrypter.swift */,
 				41C9B8C02215575100266A74 /* RSAVerifier.swift */,
+				41C9B8BC2215575100266A74 /* ECSigner.swift */,
 				41C9B8C12215575100266A74 /* ECVerifier.swift */,
+				41C9B8BF2215575100266A74 /* AESEncrypter.swift */,
+				41C9B8BA2215575100266A74 /* AESDecrypter.swift */,
 			);
 			path = CryptoInterface;
 			sourceTree = "<group>";
@@ -384,17 +384,17 @@
 			isa = PBXGroup;
 			children = (
 				41C9B8C32215575100266A74 /* RSA.swift */,
-				41C9B8C42215575100266A74 /* SecKeyECPrivateKey.swift */,
-				41C9B8C52215575100266A74 /* AES.swift */,
-				41C9B8C62215575100266A74 /* SecKeyECPublicKey.swift */,
-				41C9B8C72215575100266A74 /* HMAC.swift */,
-				41C9B8C82215575100266A74 /* DataECPrivateKey.swift */,
-				41C9B8C92215575100266A74 /* SecureRandom.swift */,
-				41C9B8CA2215575100266A74 /* EC.swift */,
-				41C9B8CB2215575100266A74 /* DataSymmetricKey.swift */,
 				41C9B8CC2215575100266A74 /* DataRSAPublicKey.swift */,
-				41C9B8CD2215575100266A74 /* DataECPublicKey.swift */,
 				41C9B8CE2215575100266A74 /* SecKeyRSAPublicKey.swift */,
+				41C9B8CA2215575100266A74 /* EC.swift */,
+				41C9B8C42215575100266A74 /* SecKeyECPrivateKey.swift */,
+				41C9B8C62215575100266A74 /* SecKeyECPublicKey.swift */,
+				41C9B8C82215575100266A74 /* DataECPrivateKey.swift */,
+				41C9B8CD2215575100266A74 /* DataECPublicKey.swift */,
+				41C9B8C52215575100266A74 /* AES.swift */,
+				41C9B8C72215575100266A74 /* HMAC.swift */,
+				41C9B8C92215575100266A74 /* SecureRandom.swift */,
+				41C9B8CB2215575100266A74 /* DataSymmetricKey.swift */,
 			);
 			path = CryptoImplementation;
 			sourceTree = "<group>";
@@ -448,7 +448,7 @@
 		41C9B8EF2215575100266A74 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				41C9B8F02215575100266A74 /* PoPToken.swift */,
+				41C9B8F02215575100266A74 /* POPToken.swift */,
 				41C9B8F12215575100266A74 /* AccessToken.swift */,
 				41C9B8F22215575100266A74 /* IDToken.swift */,
 				41C9B8F32215575100266A74 /* AuthState.swift */,
@@ -648,7 +648,7 @@
 				41C9B9182215575200266A74 /* SecKeyECPublicKey.swift in Sources */,
 				41C9B9422215575200266A74 /* ProviderConfiguration.swift in Sources */,
 				41C9B90C2215575200266A74 /* JWSHeader.swift in Sources */,
-				41C9B93E2215575200266A74 /* PoPToken.swift in Sources */,
+				41C9B93E2215575200266A74 /* POPToken.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

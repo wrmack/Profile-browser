@@ -56,6 +56,9 @@ class EditProfileInteractor: NSObject, EditProfileBusinessLogic, EditProfileData
         var urlRequest = URLRequest(url: URL(string: webid!)! )
         urlRequest.httpMethod = "PATCH"
         urlRequest.setValue("appliction/sparql-update", forHTTPHeaderField: "Content-Type")
+        let authState = AuthState.loadState()
+        let popToken = POPToken(webId: webid!, authState: authState!)
+        urlRequest.setValue("Bearer \(popToken)", forHTTPHeaderField: "Authorization") // Check!!!!
         let bodyString = "DELETE DATA { \(originalTriple)}; INSERT DATA {\(replacementTriple)}"
         let body = bodyString.data(using: .utf8)
         urlRequest.httpBody = body

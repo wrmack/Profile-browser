@@ -25,9 +25,9 @@ class EditProfileRouter: NSObject, EditProfileRoutingLogic, EditProfileDataPassi
     var dataStore: EditProfileDataStore?
   
   // MARK: Routing
-  
+    // TODO: pass webid using data passing rather than injection
     func navigateToAuthentication() {
-        let authenticationVC = AuthenticateWithProviderViewController()
+        let authenticationVC = AuthenticateWithProviderViewController(webId: (dataStore?.webid)!)
         viewController!.show(authenticationVC, sender: nil)
     }
   //func routeToSomewhere(segue: UIStoryboardSegue?)
