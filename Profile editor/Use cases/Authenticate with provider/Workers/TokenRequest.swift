@@ -26,6 +26,42 @@ fileprivate let kTokenType = "token_type"   // POP
 fileprivate let kKeyOps = "key_ops"  // POP
 
 
+struct PayloadClaims: Codable {
+    var key: JWKClaims
+    var display: String
+    var nonce: String
+    
+    enum CodingKeys: String, CodingKey {
+        case key
+        case display
+        case nonce
+    }
+}
+
+
+struct JWKClaims: Codable {
+    var alg: String
+    var kty: String
+    var use: String
+    var ext: Bool
+    var key_ops: [String]
+    var e: String
+    var n: String
+
+    
+    enum CodingKeys: String, CodingKey {
+        case alg
+        case kty
+        case use
+        case ext
+        case key_ops
+        case e
+        case n
+    }
+}
+
+
+
 class TokenRequest: NSObject, Codable {
     
     
@@ -175,6 +211,41 @@ class TokenRequest: NSObject, Codable {
         return nil
     }
     
+    func urlRequest()-> URLRequest {
+        let kHTTPPost = "POST"
+        let kHTTPContentTypeHeaderKey = "Content-Type"
+        let kHTTPContentTypeHeaderValue = "application/x-www-form-urlencoded; charset=UTF-8"
+        let tokenRequestURL = self.tokenRequestURL()
+        var URLRequestA = URLRequest(url: tokenRequestURL)
+        URLRequestA.httpMethod = kHTTPPost
+        URLRequestA.setValue(kHTTPContentTypeHeaderValue, forHTTPHeaderField: kHTTPContentTypeHeaderKey)
+        let bodyParameters = tokenRequestBody()
+        var httpHeaders = [String : String]()
+        if clientSecret != nil {
+            // The client id and secret are encoded using the "application/x-www-form-urlencoded"
+            // encoding algorithm per RFC 6749 Section 2.3.1.
+            // https://tools.ietf.org/html/rfc6749#section-2.3.1
+            let encodedClientID = TokenUtilities.formUrlEncode(clientID)
+            let encodedClientSecret = TokenUtilities.formUrlEncode(clientSecret)
+            let credentials = "\(encodedClientID):\(encodedClientSecret)"
+            let plainData = credentials.data(using: .utf8)!
+            let basicAuth = plainData.base64EncodedString(options: [])
+            let authValue = "Basic \(basicAuth)"
+            httpHeaders["Authorization"] = authValue
+        } else {
+            bodyParameters.addParameter(kClientIDKey, value: clientID)
+        }
+        // Constructs request with the body string and headers.
+        let bodyString = bodyParameters.urlEncodedParameters()
+        let body: Data? = bodyString.data(using: .utf8)
+        URLRequestA.httpBody = body!
+        for header in httpHeaders {
+            URLRequestA.setValue(httpHeaders[header.key], forHTTPHeaderField: header.key)
+        }
+        return URLRequestA
+    }
+    
+    
     /*! @brief Constructs the request URI.
      @return A URL representing the token request.
      @see https://tools.ietf.org/html/rfc6749#section-4.1.3
@@ -210,12 +281,15 @@ class TokenRequest: NSObject, Codable {
             query.addParameter(kCodeVerifierKey, value: codeVerifier)
         }
         
-        // POP
-        let publicKeyPayloadEncoded = createKeysForPOP()
+        // JWK
+        // Header
         var publicKeyHeader = [String : String]()
         publicKeyHeader["alg"] = "none"
         let json = try? JSONEncoder().encode(publicKeyHeader)
         let publicKeyHeaderEncoded = TokenUtilities.encodeBase64urlNoPadding(json)
+        // Payload
+        let publicKeyPayloadEncoded = createKeysForPOP()
+        // Combined
         let publicKeyEncoded = publicKeyHeaderEncoded! + "." + publicKeyPayloadEncoded! + "."
         query.addParameter(kPublicKey, value: publicKeyEncoded)
         query.addParameter(kTokenType, value: "pop")
@@ -226,45 +300,11 @@ class TokenRequest: NSObject, Codable {
     }
 
     
-    func urlRequest()-> URLRequest {
-        let kHTTPPost = "POST"
-        let kHTTPContentTypeHeaderKey = "Content-Type"
-        let kHTTPContentTypeHeaderValue = "application/x-www-form-urlencoded; charset=UTF-8"
-        let tokenRequestURL = self.tokenRequestURL()
-        var URLRequestA = URLRequest(url: tokenRequestURL) //as? NSMutableURLRequest
-        URLRequestA.httpMethod = kHTTPPost
-        URLRequestA.setValue(kHTTPContentTypeHeaderValue, forHTTPHeaderField: kHTTPContentTypeHeaderKey)
-        let bodyParameters = tokenRequestBody()
-        var httpHeaders = [String : String]()
-        if clientSecret != nil {
-            // The client id and secret are encoded using the "application/x-www-form-urlencoded"
-            // encoding algorithm per RFC 6749 Section 2.3.1.
-            // https://tools.ietf.org/html/rfc6749#section-2.3.1
-            let encodedClientID = TokenUtilities.formUrlEncode(clientID)
-            let encodedClientSecret = TokenUtilities.formUrlEncode(clientSecret)
-            let credentials = "\(encodedClientID):\(encodedClientSecret)"
-            let plainData = credentials.data(using: .utf8)!
-            let basicAuth = plainData.base64EncodedString(options: [])
-            let authValue = "Basic \(basicAuth)"
-            httpHeaders["Authorization"] = authValue
-        } else {
-            bodyParameters.addParameter(kClientIDKey, value: clientID)
-        }
-        // Constructs request with the body string and headers.
-        let bodyString = bodyParameters.urlEncodedParameters()
-        let body: Data? = bodyString.data(using: .utf8)
-        URLRequestA.httpBody = body!
-        for header in httpHeaders {
-            URLRequestA.setValue(httpHeaders[header.key], forHTTPHeaderField: header.key)
-        }
-        return URLRequestA
-    }
-    
-    
     // POP
     func createKeysForPOP()-> String? {
         var privateKey: SecKey
         let tag = "com.wm.POD-browser".data(using: .utf8)!
+//        deleteKeysInKeychain(tag: tag)
         
         // Check if stored in keychain
         let query: [String: Any] =
@@ -299,27 +339,51 @@ class TokenRequest: NSObject, Codable {
         
         print("Public Key: \(publicKey!)")
         print("Private Key: \(privateKey)")
-        var keyParams = [String : AnyCodable]()
-        keyParams["use"] = "sig"
-        keyParams["alg"] = "RS256"
-        keyParams["ext"] = true
-        keyParams["key_ops"] = ["verify"]
-        let jwk = try! RSAPublicKey(publicKey: publicKey!, additionalParameters: keyParams)
-        let jwkEncoded = try? JSONEncoder().encode(jwk.parameters)
-        let jwkDecoded = try? JSONDecoder().decode(AnyCodable.self,from: jwkEncoded!)
-        var key = [String : AnyCodable]()
-        key["key"] = jwkDecoded
-        key["nonce"] = AnyCodable(nonce)
-        key["display"] = AnyCodable("page")
-//        key["redirect_uri"] = AnyCodable(redirectURL)
-        let json = try? JSONEncoder().encode(key)
-        let b64Encoded = TokenUtilities.encodeBase64urlNoPadding(json)
-        print("Encoded key: \(b64Encoded!)")
-        return b64Encoded
+        
+        let algClaim = "RS256"
+        let keyTypeClaim = "RSA"
+        let useClaim = "sig"
+        let extClaim = true
+        let keyopsClaim = ["verify"]
+        let eClaim = "AQAB"
+        
+        // Get public key modulus.  Used https://stackoverflow.com/a/43225656
+        var pubKeyAtts = SecKeyCopyAttributes(publicKey!) as! [String : Any]
+        let keySize = pubKeyAtts[kSecAttrKeySizeInBits as String] as! Int
+        let pubKeyData = pubKeyAtts[kSecValueData as String] as! Data
+        var modulus = pubKeyData.subdata(in: 8..<(pubKeyData.count - 5))
+        if modulus.count > keySize / 8 {
+            modulus.removeFirst(1)
+        }
+        let nClaim = TokenUtilities.encodeBase64urlNoPadding(modulus)
+        
+        let jwkClaims = JWKClaims(alg: algClaim, kty: keyTypeClaim, use: useClaim, ext: extClaim, key_ops: keyopsClaim, e: eClaim, n: nClaim!)
+        let jwkEncoded = try? JSONEncoder().encode(jwkClaims)
+        let jwkDecoded = try? JSONDecoder().decode(JWKClaims.self,from: jwkEncoded!)
+        
+        let keyClaim = jwkDecoded
+        let nonceClaim = nonce
+        let displayClaim = "page"
+        
+        let payload = PayloadClaims(key: keyClaim!, display: displayClaim, nonce: nonceClaim!)
+        let json = try? JSONEncoder().encode(payload)
+        return TokenUtilities.encodeBase64urlNoPadding(json)
     }
     
-    func removeAllKeysFromKeychain() {
+    
+    /*
+     Only used in development to clean out keychain
+     */
+    func deleteKeysInKeychain(tag: Data) {
+        let query: [String: Any] =
+            [
+                kSecClass as String: kSecClassKey,
+                kSecAttrApplicationTag as String: tag,
+                kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
+            ]
         
+        let status = SecItemDelete(query as CFDictionary)
+        print("Removed keys from keychain status: \(status)")
     }
 }
 

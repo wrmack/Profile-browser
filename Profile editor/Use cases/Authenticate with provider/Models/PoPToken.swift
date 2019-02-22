@@ -21,21 +21,21 @@
 import Foundation
 
 // TODO: check types.  eg is idToken a String
-struct PopTokenParams: Codable {
-    var issuer: String
-    var audience: String
-    var issuedAtTime: Int
-    var expiryTime: Int
-    var idToken: String
-    var tokenType: String
+struct PopTokenClaims: Codable {
+    var iss: String
+    var aud: String
+    var iat: Int
+    var exp: Int
+    var id_token: String
+    var token_type: String
     
     enum CodingKeys: String, CodingKey {
-        case issuer
-        case audience
-        case issuedAtTime
-        case expiryTime
-        case idToken
-        case tokenType
+        case iss
+        case aud
+        case iat
+        case exp
+        case id_token
+        case token_type
     }
     
 }
@@ -54,7 +54,7 @@ class POPToken: NSObject {
         let jsonHeader = try? JSONEncoder().encode(headerSection)
         let b64Header = TokenUtilities.encodeBase64urlNoPadding(jsonHeader)
         
-        // Set up payload parameters
+        // Set up payload claims
         let issuer = authState.lastAuthorizationResponse?.request?.clientID
         let components = URLComponents(string: webId)
         let audience = "\(components!.scheme!)://\(components!.host!):\(components!.port!)"
@@ -62,7 +62,7 @@ class POPToken: NSObject {
         let expiryTime = Date(timeIntervalSinceNow: 3600).timeIntervalSince1970
         let idToken = authState.lastTokenResponse?.idToken
         let tokenType = "pop"
-        let tokenParams = PopTokenParams(issuer: issuer!, audience: audience, issuedAtTime: Int(issuedAtTime), expiryTime: Int(expiryTime), idToken: idToken!, tokenType: tokenType)
+        let tokenParams = PopTokenClaims(iss: issuer!, aud: audience, iat: Int(issuedAtTime), exp: Int(expiryTime), id_token: idToken!, token_type: tokenType)
     
 
         // Create payload json and b64 encode it
@@ -70,7 +70,7 @@ class POPToken: NSObject {
         
         print("json data: \(jsonPayload!)")
         print("json string: \(String(data: jsonPayload!, encoding: String.Encoding.utf8)!)")
-        let jsonDecoded = try? JSONDecoder().decode(PopTokenParams.self, from: jsonPayload! )
+        let jsonDecoded = try? JSONDecoder().decode(PopTokenClaims.self, from: jsonPayload! )
         print("jsonDecoded: \(jsonDecoded!)")
         
         let b64Payload = TokenUtilities.encodeBase64urlNoPadding(jsonPayload!)
@@ -115,7 +115,7 @@ class POPToken: NSObject {
         
         // Create JWS
         self.token = "\(combined).\(TokenUtilities.encodeBase64urlNoPadding(signature!)!)"
-        // test
+        
     }
     
     override init() {

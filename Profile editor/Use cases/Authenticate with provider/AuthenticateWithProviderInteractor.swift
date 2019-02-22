@@ -273,8 +273,8 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
     
     
     func fetchUserInfo(request: AuthenticateWithProvider.UserInfo.Request) {
-        //let userinfoEndpoint = authState!.lastAuthorizationResponse!.request!.configuration!.discoveryDocument!.userinfoEndpoint
-        let userinfoEndpoint = URL(string: "https://warwicks-macbook.local:8443/userinfo")   
+        let userinfoEndpoint = authState!.lastAuthorizationResponse!.request!.configuration!.discoveryDocument!.userinfoEndpoint
+//        let userinfoEndpoint = URL(string: "https://warwicks-macbook.local:8443/userinfo")
         if userinfoEndpoint == nil {
             print("Userinfo endpoint not declared in discovery document")
             return

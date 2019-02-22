@@ -48,7 +48,7 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
         fetch(url: url!, callback: { response, mimetype in
             print("Mime-type: \(mimetype)")
             print("Data: \n\(response)")
-            
+            self.context?.evaluateScript("var store = RDF.graph();")
             self.context?.evaluateScript("RDF.parse(`" + response + "`, store, '" + request.webid! + "', 'text/turtle');")
             let statementsArray = self.context!.objectForKeyedSubscript("store")!.toDictionary()!["statements"] as! [Any]
             //            print("Store statements: \(statementsArray)")
@@ -148,7 +148,6 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
         do {
             let jsCode = try String(contentsOfFile: rdfPath, encoding: String.Encoding.utf8)
             _ = context?.evaluateScript(jsCode)
-            _ = context?.evaluateScript("var store = RDF.graph();")
         }
         catch {
             print("Evaluate script failed")

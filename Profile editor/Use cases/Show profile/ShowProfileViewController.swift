@@ -59,11 +59,8 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
     // MARK: - View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         navigationItem.leftBarButtonItem = editButtonItem
 
-//        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewObject(_:)))
-//        navigationItem.rightBarButtonItem = addButton
         if let split = splitViewController {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
@@ -93,15 +90,6 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
         clearsSelectionOnViewWillAppear = splitViewController!.isCollapsed
         super.viewWillAppear(animated)
     }
-
-    override func viewDidAppear(_ animated: Bool) {
-//        (tableView.tableHeaderView as! ShowProfileHeaderView).webIDTextView?.invalidateIntrinsicContentSize()
-//        (tableView.tableHeaderView as! ShowProfileHeaderView).webIDTextView?.contentSize = CGSize(width: 600, height: 14)
-//        (tableView.tableHeaderView as! ShowProfileHeaderView).webIDTextView?.textContainer.size = CGSize(width: 600, height: 14)
-//        (tableView.tableHeaderView as! ShowProfileHeaderView).webIDTextView?.textContainer.textView.size = CGSize(width: 600, height: 14)
-//        (tableView.tableHeaderView as! ShowProfileHeaderView).webIDTextView?.textContainer.heightTracksTextView = true
-//        (tableView.tableHeaderView as! ShowProfileHeaderView).webIDTextView?.textContainer.widthTracksTextView = true
-    }
     
     
     // MARK: Routing
@@ -113,6 +101,19 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
                 router.perform(selector, with: segue)
             }
         }
+    }
+    
+    
+    func itemWasEdited() {
+        startActivityIndicator()
+        var savedWebid: WebID?
+        if let data = UserDefaults.standard.object(forKey: "WebID") as? Data  {
+            savedWebid = try? JSONDecoder().decode(WebID.self, from: data)
+        }
+        if savedWebid != nil {
+            (tableView.tableHeaderView as! ShowProfileHeaderView).webIDTextField?.text = savedWebid!.name
+        }
+        fetchProfile(webid: savedWebid!.name!)
     }
 
     

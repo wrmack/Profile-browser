@@ -14,6 +14,7 @@ import UIKit
 
 @objc protocol ShowProfileRoutingLogic {
     func routeToShowProfileItem(segue: UIStoryboardSegue?)
+    func returnFromEditing()
 }
 
 protocol ShowProfileDataPassing {
@@ -34,7 +35,12 @@ class ShowProfileRouter: NSObject, ShowProfileRoutingLogic, ShowProfileDataPassi
     }
   }
 
+    
+    func returnFromEditing() {
+        viewController!.itemWasEdited()
+    }
   
+    
   // MARK: Passing data
   
   func passDataToSomewhere(source: ShowProfileDataStore, destination: inout EditProfileDataStore) {

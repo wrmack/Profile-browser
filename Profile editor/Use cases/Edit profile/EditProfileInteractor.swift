@@ -40,7 +40,7 @@ class EditProfileInteractor: NSObject, EditProfileBusinessLogic, EditProfileData
     // MARK: - VIP
 
     /*
-     Create a SPAQL request to replace existing resource with changed resource
+     Create a SPARQL request to replace existing resource with changed resource
      */
     func saveTriple(request: EditProfile.EditTriple.Request, callback: @escaping (String?)->()) {
         let originalTripleSub = (selectedItem!.subject.1 == "Literal") ? "\"\(selectedItem!.subject.0)\"" : "<\(selectedItem!.subject.0)>"
@@ -55,10 +55,15 @@ class EditProfileInteractor: NSObject, EditProfileBusinessLogic, EditProfileData
         
         var urlRequest = URLRequest(url: URL(string: webid!)! )
         urlRequest.httpMethod = "PATCH"
-        urlRequest.setValue("appliction/sparql-update", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue("application/sparql-update", forHTTPHeaderField: "Content-Type")
         let authState = AuthState.loadState()
+//        authState = nil
+        if authState == nil {
+            callback("unauthorized")
+            return
+        }
         let popToken = POPToken(webId: webid!, authState: authState!)
-        urlRequest.setValue("Bearer \(popToken)", forHTTPHeaderField: "Authorization") // Check!!!!
+        urlRequest.setValue("Bearer \(popToken!.token!)", forHTTPHeaderField: "Authorization") // Check!!!!
         let bodyString = "DELETE DATA { \(originalTriple)}; INSERT DATA {\(replacementTriple)}"
         let body = bodyString.data(using: .utf8)
         urlRequest.httpBody = body
@@ -68,12 +73,21 @@ class EditProfileInteractor: NSObject, EditProfileBusinessLogic, EditProfileData
             
             print(dataString)
             print(mimeType)
-            
+
             if statusCode == 401 {
                 DispatchQueue.main.async {
                     callback("unauthorized")
+                }            
+            }
+            else if statusCode == 200 {
+                DispatchQueue.main.async {
+                    callback("success")
                 }
-            
+            }
+            else {
+                DispatchQueue.main.async {
+                    callback("unknown error")
+                }
             }
         })
         

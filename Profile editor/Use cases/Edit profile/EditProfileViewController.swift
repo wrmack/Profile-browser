@@ -27,8 +27,6 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
     @IBOutlet weak var predicateLabel: UILabel!
     @IBOutlet weak var objectLabel: UILabel!
     
-    @IBOutlet weak var subjectTextField: UITextField!
-    @IBOutlet weak var predicateTextField: UITextField!
     @IBOutlet weak var objectTextField: UITextField!
     
     
@@ -71,6 +69,7 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
             }
         }
     }
+    
 
     // MARK: View lifecycle
 
@@ -85,8 +84,6 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
         predicateLabel.text = triple.predicate.0
         objectLabel.text = triple.object.0
         
-        subjectTextField.text = triple.subject.0
-        predicateTextField.text = triple.predicate.0
         objectTextField.text = triple.object.0
     }
     
@@ -101,14 +98,20 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
 
     func saveTriple() {
         let selectedItem = getSelectedItem()
-        let subject = (subjectTextField.text!, selectedItem.subject.1)
-        let predicate = (predicateTextField.text!, selectedItem.predicate.1)
+        let subject = (subjectLabel.text!, selectedItem.subject.1)
+        let predicate = (predicateLabel.text!, selectedItem.predicate.1)
         let object = (objectTextField.text!, selectedItem.object.1)
         let triple = Triple(index: selectedItem.index, subject: subject, predicate: predicate, object: object)
         let request = EditProfile.EditTriple.Request(triple: triple)
         interactor?.saveTriple(request: request, callback: { message in
             if message == "unauthorized" {
                 self.router!.navigateToAuthentication()
+            }
+            else if message == "success" {
+                let splitViewController = UIApplication.shared.delegate?.window!!.rootViewController as! UISplitViewController
+                if splitViewController.isCollapsed {
+                    self.router!.showMasterViewController()
+                }
             }
         })
     }

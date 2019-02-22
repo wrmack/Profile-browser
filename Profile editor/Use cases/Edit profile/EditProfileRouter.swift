@@ -14,6 +14,7 @@ import UIKit
 
 @objc protocol EditProfileRoutingLogic {
     func navigateToAuthentication()
+    func showMasterViewController()
 }
 
 protocol EditProfileDataPassing {
@@ -30,6 +31,17 @@ class EditProfileRouter: NSObject, EditProfileRoutingLogic, EditProfileDataPassi
         let authenticationVC = AuthenticateWithProviderViewController(webId: (dataStore?.webid)!)
         viewController!.show(authenticationVC, sender: nil)
     }
+    
+
+    func showMasterViewController() {
+        viewController?.navigationController?.navigationController?.popToRootViewController(animated: true)
+        let splitVC = (UIApplication.shared.delegate! as! AppDelegate).window!.rootViewController! as! UISplitViewController
+        let showProfileNavC = splitVC.viewControllers[0]
+        let showProfileVC = showProfileNavC.children[0] as! ShowProfileViewController
+        showProfileVC.router!.returnFromEditing()
+    }
+
+
   //func routeToSomewhere(segue: UIStoryboardSegue?)
   //{
   //  if let segue = segue {
