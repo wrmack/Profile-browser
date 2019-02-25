@@ -1,0 +1,19 @@
+/* 
+  Language.strings
+  Profile editor
+
+  Created by Warwick McNaughton on 24/02/19.
+  Copyright © 2019 Warwick McNaughton. All rights reserved.
+*/
+
+/*
+ https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+ */
+
+
+"nl" = "dutch";
+"en" = "english";
+"fr" = "french";
+"mi" = "maori";
+"no" = "norwegian";
+

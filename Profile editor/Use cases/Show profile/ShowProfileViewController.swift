@@ -19,7 +19,7 @@ protocol ShowProfileDisplayLogic: class {
 }
 
 
-class ShowProfileViewController: UITableViewController, UITextFieldDelegate, ShowProfileDisplayLogic {
+class ShowProfileViewController: UITableViewController, UITextFieldDelegate, ShowProfileDisplayLogic, UIPopoverPresentationControllerDelegate, DisplayRecentsPopupViewControllerDelegate {
 
     var interactor: ShowProfileBusinessLogic?
     var router: (NSObjectProtocol & ShowProfileRoutingLogic & ShowProfileDataPassing)?
@@ -28,6 +28,9 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
     var activityIndicator: UIActivityIndicatorView?
     var indicatorContainerView: UIView?
     var tableSections = [Section]()
+    var allUnFolded = true
+    
+    @IBOutlet weak var foldAllButton: UIBarButtonItem!
     
     
     // MARK: - Object lifecycle
@@ -59,7 +62,7 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
     // MARK: - View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.leftBarButtonItem = editButtonItem
+//        navigationItem.leftBarButtonItem = editButtonItem
 
         if let split = splitViewController {
             let controllers = split.viewControllers
@@ -92,7 +95,7 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
     }
     
     
-    // MARK: Routing
+    // MARK: - Routing
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let scene = segue.identifier {
@@ -129,9 +132,15 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
         tableSections = viewModel.sections!
         tableView.reloadData()
         if tableSections.count > 1 {
-//            foldAllButton.isEnabled = true
+            foldAllButton.isEnabled = true
         }
     }
+    
+    
+    func saveWebIDToRecents(webID: String) {
+        interactor!.saveWebIDToRecents(webID: webID)
+    }
+    
     
     // MARK: - Datastore
     
@@ -140,7 +149,22 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
     }
     
     
-    // MARK - User actions
+    // MARK: - User actions
+    
+    @objc func displayRecentsInPopup(_ sender: UIButton) {
+        let recentsPopUpController = DisplayRecentsPopupViewController(nibName: nil, bundle: nil)
+        recentsPopUpController.modalPresentationStyle = .popover
+        present(recentsPopUpController, animated: true, completion: nil)
+        
+        let popoverController = recentsPopUpController.popoverPresentationController
+        popoverController!.delegate = self
+        popoverController!.sourceView = sender.superview!
+        popoverController!.sourceRect = sender.frame
+        popoverController!.permittedArrowDirections = .up
+        recentsPopUpController.delegate = self
+        recentsPopUpController.reloadData()
+    }
+    
     
     @objc func sectionCollapseButtonPressed(_ sender: UIButton) {
         let sectionIndex = (sender.superview!.superview as! ShowProfileSectionHeaderView).sectionIndex
@@ -155,6 +179,21 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
         tableView.reloadData()
     }
 
+    
+    @IBAction func foldAllButtonPressed(_ sender: UIBarButtonItem) {
+        for sectionIndex in 0..<tableSections.count {
+            if allUnFolded == true {
+                tableSections[sectionIndex].isUnfolded = false
+            }
+            else {
+                tableSections[sectionIndex].isUnfolded = true
+            }
+        }
+        allUnFolded = allUnFolded ? false : true
+        sender.title = allUnFolded ? "Fold all" : "Unfold all"
+        tableView.reloadData()
+    }
+    
     
     // MARK: - UITableViewDatasource methods
 
@@ -271,9 +310,24 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
             let encodedProvider = try? JSONEncoder().encode(webid)
             UserDefaults.standard.set(encodedProvider, forKey: "WebID")
         }
+        saveWebIDToRecents(webID: textField.text!)
         startActivityIndicator()
         fetchProfile(webid: textField.text!)
         return true
+    }
+    
+    // MARK: - DisplayRecentsPopupViewController delegate methods
+    
+    func didSelectWebIDInPopUpViewController(_ viewController: DisplayRecentsPopupViewController, webID: String) {
+        let header = tableView.tableHeaderView as! ShowProfileHeaderView
+        header.webIDTextField!.text = webID
+        header.webIDTextField?.becomeFirstResponder()
+        dismiss(animated: true, completion: nil)
+    }
+
+    
+    func didCancelPopupViewController() {
+         dismiss(animated: true, completion: nil)
     }
 }
 

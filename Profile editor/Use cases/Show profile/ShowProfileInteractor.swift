@@ -19,6 +19,7 @@ protocol ShowProfileBusinessLogic {
     func fetchProfile(request: ShowProfile.Profile.Request)
     func getStoreTriples()-> [Triple]?
     func addSelectedItemToDataStore(item: (String, String, Int))
+    func saveWebIDToRecents(webID: String)
 }
 
 protocol ShowProfileDataStore {
@@ -32,7 +33,6 @@ protocol ShowProfileDataStore {
 
 class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileDataStore, URLSessionDelegate {
     var presenter: ShowProfilePresentationLogic?
-    var worker: ShowProfileWorker?
     var context: JSContext?
     var storeTriples: [Triple]?
     var selectedItem: Triple?
@@ -51,7 +51,7 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
             self.context?.evaluateScript("var store = RDF.graph();")
             self.context?.evaluateScript("RDF.parse(`" + response + "`, store, '" + request.webid! + "', 'text/turtle');")
             let statementsArray = self.context!.objectForKeyedSubscript("store")!.toDictionary()!["statements"] as! [Any]
-            //            print("Store statements: \(statementsArray)")
+//            print("Store statements: \(statementsArray)")
             var triples = [Triple]()
             var count = 0
             for item in statementsArray {
@@ -61,6 +61,8 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
                     let predicate = (tripleDictionary["predicate"] as! [String : Any])["value"] as! String
                     let predicateType = (tripleDictionary["predicate"] as! [String : Any])["termType"] as! String
                     let objectType = (tripleDictionary["object"] as! [String : Any])["termType"] as! String
+                    var objectLang = (tripleDictionary["object"] as! [String : Any])["lang"] as? String
+                    if (objectLang != nil) && (objectLang!.count == 0) {objectLang = nil}
                     var object: String?
                     switch objectType {
                     case "NamedNode":
@@ -74,7 +76,8 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
                     default:
                         object = "Missing object"
                     }
-                    let triple = Triple(index: count, subject: (subject, subjectType), predicate:( predicate, predicateType), object: (object!, objectType))
+                    
+                    let triple = Triple(index: count, subject: (subject, subjectType), predicate:( predicate, predicateType), object: (object!, objectType, objectLang))
                     triples.append(triple)
                     count += 1
                 }
@@ -176,6 +179,20 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
             callback(string!, httpResponse.mimeType!)
         }
         task.resume()
+    }
+    
+    func saveWebIDToRecents(webID: String) {
+        var recentsArray = [String]()
+        let defaults = UserDefaults.standard
+        if let recentsData = defaults.data(forKey: "Recents") {
+            recentsArray = try! JSONDecoder().decode([String].self, from: recentsData)
+            if recentsArray.count > 15 {
+                recentsArray.removeLast(1)
+            }
+        }
+        recentsArray.insert(webID, at: 0)
+        let encodedRecentsArray = try? JSONEncoder().encode(recentsArray)
+        defaults.set(encodedRecentsArray, forKey: "Recents")
     }
     
     

@@ -41,12 +41,12 @@ struct Section {
 
 
 struct Triple {
-    var index: Int?
+    var index: Int
     var subject: (String, String)
     var predicate: (String, String)
-    var object: (String, String)
+    var object: (String, String, String?)
     var why: String
-    init(index: Int?, subject: (String, String), predicate: (String, String), object: (String, String)) {
+    init(index: Int, subject: (String, String), predicate: (String, String), object: (String, String, String?)) {
         self.index = index
         self.subject = subject
         self.predicate = predicate

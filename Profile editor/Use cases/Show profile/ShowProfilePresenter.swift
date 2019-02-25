@@ -20,18 +20,20 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
     weak var viewController: ShowProfileDisplayLogic?
     var me: String?
     var hostURL: String?
-    var fullName: String?
+    var formattedName: String?
     
     
     // MARK: - VIP
     
     /*
-     Passes an array of Sections to the ViewController.  The data in each Section will be used for each section in the tableview.
-     The subject will be placed in the section header and each cell in the section will contain the predicate and object.
+     Passes an array of Sections ([Section]) to the ViewController to display as table sections.
+     The data in each Section will be used for each section in the tableview.
+     The subject will be placed in the section header and each cell in the section will contain the predicate and object associated
+     for that subject.
      First, enumerate triples to get info about 'me' and put this into the first section.
      Break out of enumeration when subject changes from me or get to end of triples.
      Continue enumeration of triples to get all other info.
-     When subject changes form a new section.
+     When subject changes form a new section, placing the subject into the section name (which will be displayed in the section header).
      */
     func presentTriplesBySubject(response: ShowProfile.Profile.Response) {
         let triples = response.triples
@@ -44,7 +46,7 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
         for triple in triples! {
  //           let (subject, subjectType) = triple.subject
             let (predicate, _) = triple.predicate
-            let (object, _) = triple.object
+            let (object, _, _) = triple.object
             if predicate.contains("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (object.contains("http://xmlns.com/foaf/0.1/Document") || object.contains("http://xmlns.com/foaf/0.1/PersonalProfileDocument")) {
                 profileDocument = triple.subject.0
                 let documentURL = URL(string: profileDocument!)
@@ -57,65 +59,65 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
         for triple in triples! {
             let (subject, _) = triple.subject
             let (predicate, _) = triple.predicate
-//            let (object, _) = triple.object
             if subject == profileDocument && predicate == "http://xmlns.com/foaf/0.1/primaryTopic" {
                 me = triple.object.0
                 break
             }
         }
         
-        // Get full name
+        // Get formatted name
         for triple in triples! {
             let (subject, _) = triple.subject
             let (predicate, _) = triple.predicate
-//            let (object, _) = triple.object
             if subject == me && predicate == "http://www.w3.org/2006/vcard/ns#fn" {
-                fullName = triple.object.0
+                formattedName = triple.object.0
                 subj = me
-                currentSection = Section(name: fullName!)
+                currentSection = Section(name: formattedName!)
                 break
             }
         }
         
-        // Having got name of the initial section for me as the subject, get all data to add to the section body.
+        // Having got name of the initial section for 'me' as the subject, get all data to add to the section body.
         for triple in triples! {
-            let (subject, subjectType) = triple.subject
-//            let (predicate, _) = triple.predicate
-//            let (object, _) = triple.object
-            if subj != nil && subjectType != "BlankNode"{
-                if subject == subj {
-                    currentSection!.sectionData.append(getPredAndObjectFromTriple(triple: triple, triples: triples!))
-                }
-                else {
-                    // Assumes once subject changes then save this section, break out and start a new one
-                    sections.append(currentSection!)
-                    break
-                }
+            let (subject, _) = triple.subject
+            if subject == me {
+                currentSection!.sectionData.append(getPredAndObjectFromTriple(triple: triple, triples: triples!))
             }
             tripleIndex += 1
-            if tripleIndex == triples?.count {
+            if subject != me && subject != profileDocument {
                 if currentSection != nil {
                     sections.append(currentSection!)
                 }
                 break
             }
         }
+        if tripleIndex < (triples?.count)! {
         
-        // Parse all triples starting after the me section
-        currentSection = nil
-        for index in tripleIndex..<triples!.count {
-            let triple = triples![index]
-            let (subject, _) = triple.subject
-            if subject != subj {
-                if currentSection != nil {
+            // Parse all triples starting after the me section
+            currentSection = nil 
+            for index in tripleIndex..<triples!.count {
+                let triple = triples![index]
+                guard let subject = getSubjectFromTriple(triple: triple, triples: triples!) else { continue}
+
+                // Change of subject
+                if subject != subj {
+                    if currentSection != nil {
+                        sections.append(currentSection!)
+                    }
+                    subj = subject
+                    if subj == me {
+                        let subjFriendly = formattedName!
+                        currentSection = Section(name: subjFriendly)
+                    }
+                    else {
+                        currentSection = Section(name: subj!)
+                    }
+                }
+                currentSection!.sectionData.append(getPredAndObjectFromTriple(triple: triple, triples: triples!))
+                // At end of triples
+                if index == triples?.count {
                     sections.append(currentSection!)
                 }
-                subj = subject
-                currentSection = Section(name: subj!)
-            }
-            currentSection!.sectionData.append(getPredAndObjectFromTriple(triple: triple, triples: triples!))
-            if index == triples?.count {
-                sections.append(currentSection!)
             }
         }
         let viewModel = ShowProfile.Profile.ViewModel(sections: sections)
@@ -126,6 +128,32 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
     
     // MARK: - Helpers
     
+    func getSubjectFromTriple(triple: Triple, triples: [Triple]) -> (String?) {
+        if triple.subject.1 == "Literal" {
+            return triple.subject.0
+        }
+        let subjectString = triple.subject.0
+        let objURL = URL(string: subjectString)
+        if subjectString.contains("#") && objURL!.host == hostURL {
+            if subjectString == me {
+                return formattedName
+            }
+            else {
+                let idx1 = subjectString.lastIndex(of: "#")
+                let  idxAfter = subjectString.index(after: idx1!)
+                let fragment = String(subjectString.suffix(from: idxAfter))
+                if fragment != "me" {
+                    let isReference = checkIfReference(fragment: fragment, triples: triples)
+                    if isReference == true {
+                        return nil
+                    }
+                }
+            }
+        }
+       return triple.subject.0
+    }
+    
+    
     /*
      From the triple, return a tuple consisting of a formatted predicate and object.
      If the predicate or object matches a declared prefix, then the Turtle prefix notation is used.
@@ -133,6 +161,7 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
      */
     func getPredAndObjectFromTriple(triple: Triple, triples: [Triple]) -> (String, String, Int) {
         let predString = getPrefixSuffixFromURI(uri: triple.predicate.0)
+        let friendlyPredString = NSLocalizedString(predString, tableName: "Friendly", bundle: Bundle.main, value: "", comment: "Friendly predicate")
         var objString: String?
         if triple.object.1 != "Literal" {
             objString = getPrefixSuffixFromURI(uri: triple.object.0)
@@ -140,7 +169,7 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
             
             if objString!.contains("#") && objURL!.host == hostURL {
                 if objString == me {
-                    objString = fullName
+                    objString = formattedName
                 }
                 else {
                     let idx1 = objString!.lastIndex(of: "#")
@@ -159,77 +188,89 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
         }
         else {
             objString = triple.object.0
+            if triple.object.2 != nil {
+                let lang = NSLocalizedString(triple.object.2!, tableName: "Language", bundle: Bundle.main, value: "", comment: "")
+                objString?.append(" (\(lang))")
+            }
         }
-        return (predString, objString!, triple.index!)
+        return (friendlyPredString, objString!, triple.index)
     }
     
     
     func getPrefixSuffixFromURI(uri: String)->String {
-        var prefix: String?
-        var suffix: String?
-        var suffixLength: Int?
-        if uri.hasPrefix("http://xmlns.com/foaf/0.1/") {
-            prefix = "foaf"
-            suffixLength = uri.count - String("http://xmlns.com/foaf/0.1/").count
-        }
-        else if uri.hasPrefix("http://www.w3.org/2002/07/owl#") {
-            prefix = "owl"
-            suffixLength = uri.count - String("http://www.w3.org/2002/07/owl#").count
-        }
-        else if uri.hasPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#") {
-            prefix = "rdf"
-            suffixLength = uri.count - String("http://www.w3.org/1999/02/22-rdf-syntax-ns#").count
-        }
-        else if uri.hasPrefix("http://www.w3.org/2000/01/rdf-schema#") {
-            prefix = "rdfs"
-            suffixLength = uri.count - String("http://www.w3.org/2000/01/rdf-schema#").count
-        }
-        else if uri.hasPrefix("http://schema.org/") {
-            prefix = "schema"
-            suffixLength = uri.count - String("http://schema.org/").count
-        }
-        else if uri.hasPrefix("http://www.w3.org/2006/vcard/ns#") {
-            prefix = "vcard"
-            suffixLength = uri.count - String("http://www.w3.org/2006/vcard/ns#").count
-        }
-        else if uri.hasPrefix("http://www.w3.org/ns/pim/space#") {
-            prefix = "pim"
-            suffixLength = uri.count - String("http://www.w3.org/ns/pim/space#").count
-        }
-        else if uri.hasPrefix("http://www.w3.org/ns/ldp#") {
-            prefix = "ldp"
-            suffixLength = uri.count - String("http://www.w3.org/ns/ldp#").count
-        }
-        else if uri.hasPrefix("http://www.w3.org/ns/solid/terms#") {
-            prefix = "solid"
-            suffixLength = uri.count - String("http://www.w3.org/ns/solid/terms#").count
-        }
-        else if uri.hasPrefix("http://dbpedia.org/ontology/") {
-            prefix = "dbo"
-            suffixLength = uri.count - String("http://dbpedia.org/ontology/").count
-        }
-        else if uri.hasPrefix("http://dbpedia.org/resource/") {
-            prefix = "dbp"
-            suffixLength = uri.count - String("http://dbpedia.org/resource/").count
-        }
-        else if uri.hasPrefix("http://purl.org/dc/terms/") {
-            prefix = "dc"
-            suffixLength = uri.count - String("http://purl.org/dc/terms/").count
-        }
-        else if uri.hasPrefix("http://www.w3.org/ns/dcat#") {
-            prefix = "dcat"
-            suffixLength = uri.count - String("http://www.w3.org/ns/dcat#").count
-        }
+        var longPrefix = uri
+        
+        switch uri {
+
+        case _ where uri.hasPrefix("http://www.w3.org/ns/dcat#"):
+            longPrefix = "http://www.w3.org/ns/dcat#"
+
+        case _ where uri.hasPrefix("http://www.w3.org/2002/07/owl#"):
+            longPrefix = "http://www.w3.org/2002/07/owl#"
+        
+        case _ where uri.hasPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#"):
+             longPrefix = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        
+        case _ where uri.hasPrefix("http://www.w3.org/2000/01/rdf-schema#"):
+             longPrefix = "http://www.w3.org/2000/01/rdf-schema#"
+        
+        case _ where uri.hasPrefix("http://www.w3.org/2006/vcard/ns#"):
+            longPrefix = "http://www.w3.org/2006/vcard/ns#"
+        
+        case _ where uri.hasPrefix("http://www.w3.org/ns/pim/space#"):
+            longPrefix = "http://www.w3.org/ns/pim/space#"
+        
+        case _ where uri.hasPrefix("http://www.w3.org/ns/ldp#"):
+            longPrefix = "http://www.w3.org/ns/ldp#"
+        
+        case _ where uri.hasPrefix("http://www.w3.org/ns/solid/terms#"):
+            longPrefix = "http://www.w3.org/ns/solid/terms#"
             
-        else if uri.hasPrefix("http://www.w3.org/2000/10/swap/pim/contact#") {
-            prefix = "con"
-            suffixLength = uri.count - String("http://www.w3.org/2000/10/swap/pim/contact#").count
+        case _ where uri.hasPrefix("http://www.w3.org/ns/org#"):
+            longPrefix = "http://www.w3.org/ns/org#"
+            
+        case _ where uri.hasPrefix("http://www.w3.org/ns/auth/cert#"):
+            longPrefix = "http://www.w3.org/ns/auth/cert#"
+            
+        case _ where uri.hasPrefix("http://www.w3.org/ns/auth/acl#"):
+            longPrefix = "http://www.w3.org/ns/auth/acl#"
+            
+        case _ where uri.hasPrefix("http://www.w3.org/2000/10/swap/pim/contact#"):
+            longPrefix = "http://www.w3.org/2000/10/swap/pim/contact#"
+            
+        case _ where uri.hasPrefix("http://xmlns.com/foaf/0.1/"):
+            longPrefix = "http://xmlns.com/foaf/0.1/"
+            
+        case _ where uri.hasPrefix("http://schema.org/"):
+            longPrefix = "http://schema.org/"
+            
+        case _ where uri.hasPrefix("http://dbpedia.org/ontology/"):
+            longPrefix = "http://dbpedia.org/ontology/"
+            
+        case _ where uri.hasPrefix("http://dbpedia.org/resource/"):
+            longPrefix = "http://dbpedia.org/resource/"
+            
+        case _ where uri.hasPrefix("http://purl.org/dc/terms/"):
+            longPrefix = "http://purl.org/dc/terms/"
+            
+        case _ where uri.hasPrefix("http://purl.org/dc/elements/1.1/"):
+            longPrefix = "http://purl.org/dc/elements/1.1/"
+            
+        case _ where uri.hasPrefix("http://creativecommons.org/ns#"):
+            longPrefix = "http://creativecommons.org/ns#"
+
+        case _ where uri.hasPrefix("http://www.w3.org/2003/01/geo/wgs84_pos#"):
+            longPrefix = "http://www.w3.org/2003/01/geo/wgs84_pos#"
+
+        default:
+            break
         }
-        else {
-            return uri
+        if longPrefix != uri {
+            let prefix = NSLocalizedString(longPrefix, tableName: "Prefix", bundle: Bundle.main, value: "", comment: "")
+            let suffix = uri.components(separatedBy: longPrefix).last
+            return "\(prefix):\(suffix!)"
         }
-        suffix = String(uri.suffix(suffixLength!))
-        return prefix! + ":" + suffix!
+        return uri
     }
     
     
@@ -248,5 +289,15 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
             }
         }
         return detail
+    }
+    
+    
+    func checkIfReference(fragment: String, triples: [Triple] ) -> Bool {
+        for triple in triples {
+            if triple.object.0.contains(fragment) {
+                return true
+            }
+        }
+        return false
     }
 }

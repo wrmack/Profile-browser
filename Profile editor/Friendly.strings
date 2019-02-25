@@ -1,0 +1,182 @@
+/* 
+  Friendly.strings
+  Profile editor
+
+  Created by Warwick McNaughton on 23/02/19.
+  Copyright © 2019 Warwick McNaughton. All rights reserved.
+*/
+
+
+
+"acl:accessControl" = "access control";
+"acl:accessTo" = "access to";
+"acl:accessToClass" = "access to class";
+"acl:agent" = "agent";
+"acl:agentClass" = "agent class";
+"acl:agentGroup" = "agent group";
+"acl:default" = "default acl";
+"acl:defaultForNew" = "default acl for new";
+"acl:delegates" = "delegates";
+"acl:mode" = "mode";
+"acl:origin" = "origin";
+
+"as:actor" = "actor";
+"as:attachment" = "attachment";
+"as:attributedTo" = "attributed to";
+"as:author" = "author";
+"as:bcc" = "bcc";
+"as:bto" = "bto";
+"as:cc" = "cc";
+"as:inReplyTo" = "in reply to";
+"as:object" = "object";
+"as:published" = "publication date";
+"as:subject" = "subject";
+"as:summary" = "summary";
+"as:target" = "target";
+"as:to" = "to";
+
+"cc:license" = "Creative Commons license";
+"cc:attributionName" = "Creative Commons attribution name";
+"cc:attributionURL" = "Creative Commons attribution url";
+
+"cert:modulus" = "certificate key modulus";
+"cert:exponent" = "certificate key exponent";
+"cert:key" = "certificate key";
+
+"con:address" = "address";
+"con:assistant" = "assistant";
+"con:city" = "city";
+"con:country" = "country";
+"con:homePage" = "home page";
+"con:office" = "office";
+"con:participant" = "participant";
+"con:preferredURI" = "preferred uri";
+"con:phone" = "phone";
+"con:publicHomePage" = "public homepage";
+"con:street" = "street";
+"con:street2" = "street-2";
+"con:postalCode" = "postal code";
+
+"dbo:deathPlace" = "place of death";
+"dbo:deathDate" = "date of death";
+"dbo:birthPlace" = "birth place";
+"dbo:birthDate" = "birth date";
+"dbo:location" = "location";
+"dbo:wikiPageID" = "wiki page ID";
+"dbo:wikiPageRevisionID" = "wiki page: revision ID";
+"dbo:wikiPageWikiLink" = "wiki page: wiki link";
+"dbo:wikiPageExternalLink" = "wiki page: external link";
+"dbo:wikiPageRedirects" = "wiki page: redirects";
+"dbo:wikiPageDisambiguates" = "wiki page: disambiguates";
+"dbo:Company" = "company";
+"dbo:Activity" = "activity";
+"dbo:Name" = "name";
+"dbo:Person" = "person";
+"dbo:Actor" = "actor";
+"dbo:Place" = "place";
+"dbo:Publisher" = "publisher";
+"dbo:Genre" = "genre";
+"dbo:Language" = "language";
+"dbo:Department" = "department";
+"dbo:Software" = "software";
+"dbo:School" = "school";
+"dbo:Type" = "type";
+"dbo:thumbnail" = "thumbnail";
+
+"dc:abstract" = "abstract";
+"dc:abstract" = "abstracts";
+"dc:created" = "created";
+"dc:distribution" = "distribution";
+"dc:license" = "license";
+"dc:modified" = "modified";
+"dc:publisher" = "publisher";
+"dc:title" = "title";
+
+"dcat:accessURL" = "access url";
+
+"foaf:account" = "account";
+"foaf:age" = "age";
+"foaf:based_near" = "is based near";
+"foaf:birthday" = "birthday";
+"foaf:weblog" = "blog";
+"foaf:depiction" = "depiction";
+"foaf:depicts" = "depicts";
+"foaf:mbox" = "email";
+"foaf:familyName" = "has family name";
+"foaf:family_name" = "has family name";
+"foaf:givenName" = "has first name";
+"foaf:givenname" = "has first name";
+"foaf:knows" = "knows";
+"foaf:gender" = "gender";
+"foaf:homepage" = "homepage";
+"foaf:img" = "image";
+"foaf:interest" = "interest";
+"foaf:topic_interest" = "topic interest";
+"foaf:logo" = "logo";
+"foaf:made" = "made";
+"foaf:maker" = "maker";
+"foaf:mbox_sha1sum" = "email hash";
+"foaf:member" = "member";
+"foaf:name" = "name";
+"foaf:nick" = "nick";
+"foaf:openid" = "OpenID";
+"foaf:page" = "page";
+"foaf:phone" = "phone";
+"foaf:primaryTopic" = "primary topic";
+"foaf:primaryTopicOf" = "primary topic of";
+"foaf:publications" = "publication";
+"foaf:title" = "title";
+"foaf:thumbnail" = "thumbnail";
+"foaf:topic" = "topic";
+"foaf:workplaceHomepage" = "workplace homepage";
+
+"geo:lat" = "latitude";
+"geo:long" = "longitude";
+"geo:location" = "location";
+
+"ldp:inbox" = "inbox";
+
+"org:memberOf" = "member of";
+"org:unitOf" = "unit of";
+"org:subOrganizationOf" = "sub-organization of";
+
+"pim:storage" = "storage";
+"pim:preferencesFile" = "preferences";
+"pim:workspace" = "workspace";
+
+"rdf:type" = "is of type";
+
+"rdfs:comment" = "comment";
+"rdfs:label" = "label";
+"rdfs:seeAlso" = "see also";
+"rdfs:type" = "is of type";
+"rdfs:isDefinedBy" = "is defined by";
+
+"schema:alumni" = "alumni";
+"schema:CollegeOrUniversity" = "college / university";
+"schema:Dataset" = "dataset";
+"schema:name" = "name";
+
+"solid:account" = "solid account";
+"solid:oidcIssuer" = "oidc issuer";
+"solid:publicTypeIndex" = "public type index";
+"solid:privateTypeIndex" = "private type index";
+
+"vcard:fn" = "formatted name";
+"vcard:hasAddress" = "address";
+"vcard:hasEmail" = "email";
+"vcard:hasTelephone" = "phone";
+"vcard:Home" = "home";
+"vcard:locality" = "locality";
+"vcard:note" = "note";
+"vcard:organization-name" = "organization";
+"vcard:postal-code" = "postal code";
+"vcard:region" = "region";
+"vcard:role" = "role";
+"vcard:street-address" = "street address";
+"vcard:value" = "value";
+"vcard:Work" = "work";
+
+
+
+

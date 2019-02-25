@@ -1,0 +1,31 @@
+/* 
+  Prefix.strings
+  Profile editor
+
+  Created by Warwick McNaughton on 24/02/19.
+  Copyright © 2019 Warwick McNaughton. All rights reserved.
+*/
+
+"http://www.w3.org/ns/dcat#" = "dcat";
+"http://www.w3.org/ns/pim/space#" = "pim";
+"http://www.w3.org/ns/ldp#" = "ldp";
+"http://www.w3.org/ns/solid/terms#" = "solid";
+"http://www.w3.org/ns/org#" = "org";
+"http://www.w3.org/ns/auth/cert#" = "cert";
+"http://www.w3.org/ns/auth/acl#" = "acl";
+"http://www.w3.org/2002/07/owl#" = "owl";
+"http://www.w3.org/1999/02/22-rdf-syntax-ns#" = "rdf";
+"http://www.w3.org/2000/01/rdf-schema#" = "rdfs";
+"http://www.w3.org/2000/10/swap/pim/contact#" = "con";
+"http://www.w3.org/2006/vcard/ns#" = "vcard";
+"http://www.w3.org/2001/XMLSchema#" = "xsd";
+"http://www.w3.org/2003/01/geo/wgs84_pos#" = "geo";
+"http://xmlns.com/foaf/0.1/" = "foaf";
+"http://dbpedia.org/ontology/" = "dbo";
+"http://dbpedia.org/resource/" = "dbp";
+"http://purl.org/dc/terms/" = "dc";
+"http://purl.org/dc/elements/1.1/" = "dc";
+"http://schema.org/" = "schema";
+"http://creativecommons.org/ns#" = "cc";
+"http://en.wikipedia.org/wiki/" = "wikipedia";
+

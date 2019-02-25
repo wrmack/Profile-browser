@@ -193,7 +193,16 @@
                             <outlet property="delegate" destination="7bK-jq-Zjz" id="RA6-mI-bju"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Enter webid" id="Zdf-7t-Un8"/>
+                    <navigationItem key="navigationItem" title="Enter a webid" id="Zdf-7t-Un8">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Fold all" id="rMl-PZ-i6o">
+                            <connections>
+                                <action selector="foldAllButtonPressed:" destination="7bK-jq-Zjz" id="swt-nR-Aoj"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="foldAllButton" destination="rMl-PZ-i6o" id="FJx-AZ-Pan"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Rux-fX-hf1" sceneMemberID="firstResponder"/>
             </objects>

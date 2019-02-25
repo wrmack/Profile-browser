@@ -100,7 +100,7 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
         let selectedItem = getSelectedItem()
         let subject = (subjectLabel.text!, selectedItem.subject.1)
         let predicate = (predicateLabel.text!, selectedItem.predicate.1)
-        let object = (objectTextField.text!, selectedItem.object.1)
+        let object = (objectTextField.text!, selectedItem.object.1, selectedItem.object.2)
         let triple = Triple(index: selectedItem.index, subject: subject, predicate: predicate, object: object)
         let request = EditProfile.EditTriple.Request(triple: triple)
         interactor?.saveTriple(request: request, callback: { message in
