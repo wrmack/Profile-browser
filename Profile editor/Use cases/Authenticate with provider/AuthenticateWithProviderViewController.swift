@@ -99,7 +99,7 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         let components = URLComponents(string: webId!)
-        let issuerString = "\(components!.scheme!)://\(components!.host!):\(components!.port!)"
+        let issuerString = components!.port != nil ? "\(components!.scheme!)://\(components!.host!):\(components!.port!)" : "\(components!.scheme!)://\(components!.host!)"
         fetchConfiguration(issuer: issuerString)
     }
     
@@ -110,19 +110,31 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
      Called when user enters provider's url ('issuer')in textfield.
      */
     func fetchConfiguration(issuer: String) {
-        let request = AuthenticateWithProvider.FetchConfiguration.Request(issuer: issuer)
-        interactor?.fetchProviderConfiguration(request: request, callback: { configuration in
-            print(configuration.description())
-            self.registerClient(configuration: configuration)
+        let request = AuthenticateWithProvider.FetchConfiguration.Request(issuer: issuer, webid: webId)
+        interactor?.fetchProviderConfiguration(request: request, callback: { configuration, errorString in 
+            if errorString == nil {
+                print(configuration!.description())
+                self.registerClient(configuration: configuration!)
+            }
+            else {
+                print(errorString!)
+                self.displayAlertWithMessage(title: "Error", message: errorString!)
+            }
         })
     }
     
     // Dynamic registration
     func registerClient(configuration: ProviderConfiguration) {
         let request = AuthenticateWithProvider.RegisterClient.Request(configuration: configuration) 
-        interactor?.registerClient(request: request, callback: { configuration, response in
-            print(response!.description())
-            self.authenticateWithProvider(configuration: configuration!, clientID: (response?.clientID)!, clientSecret: response?.clientSecret)
+        interactor?.registerClient(request: request, callback: { configuration, response, errorString in
+            if errorString == nil {
+                print(response!.description())
+                self.authenticateWithProvider(configuration: configuration!, clientID: (response?.clientID)!, clientSecret: response?.clientSecret)
+            }
+            else {
+                print(errorString!)
+                self.displayAlertWithMessage(title: "Error", message: errorString!)
+            }
         })
     }
     
@@ -181,6 +193,17 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
     }
     
     // MARK: - UITextView delegate methods
+    
+    // MARK: - Alerts
+    
+    func displayAlertWithMessage(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: { _ in
+        NSLog("The \"OK\" alert occured.")
+            self.router!.returnFromAuthenticationController()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
     
     
     // MARK: - Notifications

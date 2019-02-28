@@ -14,10 +14,6 @@ let kResponseTypeToken = "token"
 let kResponseTypeIDToken = "id_token";
 
 
-
-
-
-
 class RegistrationResponse: NSObject {
     
     let ClientIDParam = "client_id"
@@ -82,17 +78,18 @@ class RegistrationResponse: NSObject {
     // TODO: - Implement Codable -
     
     
-    func description() -> String {
-        //        return String(format: """
-        //    <%@: %p, clientID: "%@", clientIDIssuedAt: %@, \
-        //    clientSecret: %@, clientSecretExpiresAt: "%@", \
-        //    registrationAccessToken: "%@", \
-        //    registrationClientURI: "%@", \
-        //    additionalParameters: %@, request: %@>
-        //    """, NSStringFromClass(type(of: self).self), self, clientID!, clientIDIssuedAt! as CVarArg, OIDTokenUtilities.redact(clientSecret)!, clientSecretExpiresAt! as CVarArg, OIDTokenUtilities.redact(registrationAccessToken)!, registrationClientURI! as CVarArg, additionalParameters!, request as! CVarArg)
-        
-        let d =  "\n=============\nOIDRegistrationResponse \nclientID: \(clientID!) \nclientIDIssuedAt: \(clientIDIssuedAt!) \nclientSecret: \(TokenUtilities.redact(clientSecret)!) \nclientSecretExpiresAt: \(clientSecretExpiresAt!) \nregistrationAccessToken: \(TokenUtilities.redact(registrationAccessToken)!) \nregistrationClientURI: \(registrationClientURI!) \nadditionalParameters: \(additionalParameters) \nrequest: \(request!.description)\n============="
-        return d
+    func description() -> String {        
+        return """
+        \n=============
+        Registration response:
+        clientID: \(clientID!)
+        clientIDIssuedAt: \(clientIDIssuedAt!)
+        clientSecret: \(TokenUtilities.redact(clientSecret)!)
+        clientSecretExpiresAt: \(clientSecretExpiresAt!)
+        registrationAccessToken: \(TokenUtilities.redact(registrationAccessToken)!)
+        registrationClientURI: \(registrationClientURI!)
+        =============
+        """
     }
     
 }

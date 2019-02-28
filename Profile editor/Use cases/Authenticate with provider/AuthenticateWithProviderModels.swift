@@ -32,6 +32,7 @@ enum AuthenticateWithProvider {
     enum FetchConfiguration {
         struct Request {
             var issuer: String?
+            var webid: String?
         }
         struct Response {
 

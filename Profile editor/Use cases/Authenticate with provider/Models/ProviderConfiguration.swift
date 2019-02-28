@@ -13,6 +13,7 @@ fileprivate let kIssuerKey = "issuer"
 fileprivate let kAuthorizationEndpointKey = "authorization_endpoint"
 fileprivate let kTokenEndpointKey = "token_endpoint"
 fileprivate let kUserinfoEndpointKey = "userinfo_endpoint"
+fileprivate let kEndSessionEndpointKey = "end_session_endpoint"
 fileprivate let kJWKSURLKey = "jwks_uri"
 fileprivate let kRegistrationEndpointKey = "registration_endpoint"
 fileprivate let kScopesSupportedKey = "scopes_supported"
@@ -250,6 +251,12 @@ class ProviderConfiguration: NSObject, Codable {
         }
     }
     
+    var endSessionEndpoint: URL? {
+        get {
+            return URL(string: discoveryDictionary![kEndSessionEndpointKey] as! String)
+        }
+    }
+    
     // MARK: - Object lifecycle
     
     convenience init(JSON: String, error: NSError?) {
@@ -366,7 +373,27 @@ class ProviderConfiguration: NSObject, Codable {
 
     
     func description()->String {
-        return "===========\nProviderConfiguration \nauthorizationEndpoint: \(authorizationEndpoint!), \ntokenEndpoint: \(tokenEndpoint!), \nregistrationEndpoint: \(registrationEndpoint!), \ndiscoveryDictionary: \(discoveryDictionary!)\n============="
+        return """
+        \n===========\n
+        Provider configuration:\n
+        issuer: \(issuer!)
+        registrationEndpoint: \(registrationEndpoint!)
+        authorizationEndpoint: \(authorizationEndpoint!)
+        tokenEndpoint: \(tokenEndpoint!)
+        userInfoEndPoint: \(userinfoEndpoint!)
+        endSessionEndpoint: \(endSessionEndpoint!)
+        jwksUri: \(jwksURL!)
+        subjectTypesSupported: \(subjectTypesSupported!)
+        grantTypesSupported: \(grantTypesSupported!)
+        responseTypesSupported: \(responseTypesSupported!)
+        responseModesSupported: \(responseModesSupported!)
+        claimsSupported: \(claimsSupported!)
+        claimTypesSupported: \(claimTypesSupported!)
+        IDTokenSigningAlgorithmValuesSupported: \(IDTokenSigningAlgorithmValuesSupported!)
+        ...
+        Total in discoveryDictionary: \(discoveryDictionary!.count)
+        =============\n
+        """
     }
     
 }

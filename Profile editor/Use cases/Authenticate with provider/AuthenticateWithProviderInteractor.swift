@@ -13,8 +13,8 @@
 import UIKit
 
 protocol AuthenticateWithProviderBusinessLogic {
-    func fetchProviderConfiguration(request: AuthenticateWithProvider.FetchConfiguration.Request, callback: @escaping (ProviderConfiguration)->())
-    func registerClient(request: AuthenticateWithProvider.RegisterClient.Request, callback: @escaping (_ configuration: ProviderConfiguration?, _ registrationResponse:  RegistrationResponse?) -> Void)
+    func fetchProviderConfiguration(request: AuthenticateWithProvider.FetchConfiguration.Request, callback: @escaping (ProviderConfiguration?, String?)->())
+    func registerClient(request: AuthenticateWithProvider.RegisterClient.Request, callback: @escaping (_ configuration: ProviderConfiguration?, _ registrationResponse:  RegistrationResponse?, _ errorString: String?) -> Void)
     func authenticateWithProvider(request: AuthenticateWithProvider.Authenticate.Request, viewController: AuthenticateWithProviderViewController)
     func fetchUserInfo(request: AuthenticateWithProvider.UserInfo.Request)
     func logout()
@@ -22,28 +22,29 @@ protocol AuthenticateWithProviderBusinessLogic {
 }
 
 protocol AuthenticateWithProviderDataStore {
-  //var name: String { get set }
+    var webid: String? {get set}
 }
 
-class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusinessLogic, AuthenticateWithProviderDataStore, URLSessionDelegate  {
+class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusinessLogic, AuthenticateWithProviderDataStore, AuthStateChangeDelegate, URLSessionDelegate  {
     
     var presenter: AuthenticateWithProviderPresentationLogic?
-    var worker: AuthenticateWithProviderWorker?
     private var authState: AuthState?
     let kRedirectURI = "com.wm.POD-browser:/mypath"
     var viewController: UIViewController?
+    var webid: String?
     
     
     // MARK: - VIP
     
     // Fetch configuration
 
-    func fetchProviderConfiguration(request: AuthenticateWithProvider.FetchConfiguration.Request, callback: @escaping (ProviderConfiguration)->()) {
-
+    func fetchProviderConfiguration(request: AuthenticateWithProvider.FetchConfiguration.Request, callback: @escaping (ProviderConfiguration?, String?)->()) {
+        webid = request.webid
         writeToTextView(status: "Fetching configuration...\n\n", message: nil)
 
         guard let issuer = URL(string: request.issuer!) else {
-            print("Error creating URL for : \(request.issuer!)")
+            let errorString = "Error creating URL for : \(request.issuer!)"
+            callback(nil, errorString)
             return
         }
         let discoveryURL = issuer.appendingPathComponent(".well-known/openid-configuration")
@@ -56,15 +57,16 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 let errorDescription = "Connection error fetching discovery document \(discoveryURL): \(String(describing: error?.localizedDescription))."
                 error = ErrorUtilities.error(code: ErrorCode.NetworkError, underlyingError: error! as NSError, description: errorDescription)
                 DispatchQueue.main.async {
-                    print("Error retrieving discovery document: \(error!.localizedDescription)")
-                    print(error!)
+                    let errorString = "Error retrieving discovery document: \(error!.localizedDescription)"
+                    callback(nil, errorString)
                 }
                 return
             }
             
-            print("Received data: \(String(data: data!, encoding: .utf8)!)")
-            print("Received url response: \(response as! HTTPURLResponse)")
-            self.writeToTextView(status: nil, message: data)
+//            print("Received data: \(String(data: data!, encoding: .utf8)!)")
+//            print("Received url response: \(response as! HTTPURLResponse)")
+            
+
             
             let urlResponse = response as! HTTPURLResponse
             if (urlResponse.statusCode != 200) {
@@ -72,7 +74,8 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 let errorDescription = "Non-200 HTTP response \(urlResponse.statusCode) fetching discovery document \(discoveryURL)."
                 let err = ErrorUtilities.error(code: ErrorCode.NetworkError, underlyingError: URLResponseError, description: errorDescription)
                 DispatchQueue.main.async {
-                    print("Error retrieving discovery document: \(err.localizedDescription)")
+                    let errorString = "Error retrieving discovery document: \(err.localizedDescription)"
+                    callback(nil, errorString)
                 }
                 return
             }
@@ -82,13 +85,15 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 let errorDescription = "JSON error parsing document at \(discoveryURL): \(String(describing: error?.localizedDescription))"
                 error = ErrorUtilities.error(code: ErrorCode.NetworkError, underlyingError: error, description: errorDescription)
                 DispatchQueue.main.async {
-                    print("Error retrieving discovery document: \(error!.localizedDescription)")
+                    let errorString = "Error retrieving discovery document: \(error!.localizedDescription)"
+                    callback(nil, errorString)
                 }
                 return
             }
+            self.writeToTextView(status: nil, message: data)
             
             DispatchQueue.main.async {
-                callback(configuration)
+                callback(configuration, nil)
                 session.invalidateAndCancel()
             }
         })
@@ -97,10 +102,11 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
     
     // Register client
     
-    func registerClient(request: AuthenticateWithProvider.RegisterClient.Request, callback: @escaping (_ configuration: ProviderConfiguration?, _ registrationResponse:  RegistrationResponse?) -> Void) {
+    func registerClient(request: AuthenticateWithProvider.RegisterClient.Request, callback: @escaping (_ configuration: ProviderConfiguration?, _ registrationResponse:  RegistrationResponse?, _ errorString: String?) -> Void) {
         let configuration = request.configuration
         guard let redirectURI = URL(string: kRedirectURI) else {
-            print("Error creating URL for : \(kRedirectURI)")
+            let errorString = "Registration error creating URL for : \(kRedirectURI)"
+            callback(nil, nil, errorString)
             return
         }
         
@@ -123,8 +129,9 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 be serialized as JSON.
                 """)
             DispatchQueue.main.async(execute: {
-                print("Registration error: \(returnedError?.localizedDescription ?? "DEFAULT_ERROR")")
+                let errorString = "Registration error: \(returnedError?.localizedDescription ?? "DEFAULT_ERROR")"
                 self.setAuthState(nil)
+                callback(nil, nil, errorString)
             })
             return
         }
@@ -140,8 +147,9 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 }
                 let returnedError: NSError? = ErrorUtilities.error(code: ErrorCode.NetworkError, underlyingError: error as NSError?, description: errorDescription)
                 DispatchQueue.main.async(execute: {
-                    print("Registration error: \(returnedError?.localizedDescription ?? "DEFAULT_ERROR")")
+                    let errorString = "Registration error: \(returnedError?.localizedDescription ?? "DEFAULT_ERROR")"
                     self.setAuthState(nil)
+                    callback(nil, nil, errorString)
                 })
                 return
             }
@@ -160,8 +168,9 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                     if json?![OIDOAuthErrorFieldError] != nil {
                         let oauthError = ErrorUtilities.OAuthError(OAuthErrorDomain: OIDOAuthRegistrationErrorDomain, OAuthResponse: json!, underlyingError: serverError)
                         DispatchQueue.main.async(execute: {
-                            print("Registration error: \(oauthError.localizedDescription)")
+                            let errorString = "Registration error: \(oauthError.localizedDescription)"
                             self.setAuthState(nil)
+                            callback(nil, nil, errorString)
                         })
                         return
                     }
@@ -176,8 +185,9 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 }
                 let returnedError: NSError? = ErrorUtilities.error(code: ErrorCode.ServerError, underlyingError: serverError, description: errorDescription)
                 DispatchQueue.main.async(execute: {
-                    print("Registration error: \(returnedError!.localizedDescription)")
+                    let errorString = "Registration error: \(returnedError!.localizedDescription)"
                     self.setAuthState(nil)
+                    callback(nil, nil, errorString)
                 })
                 return
             }
@@ -190,8 +200,9 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 let errorDescription = "JSON error parsing registration response: \(error.localizedDescription)"
                 let returnedError: NSError? = ErrorUtilities.error(code: ErrorCode.JSONDeserializationError, underlyingError: error as NSError, description: errorDescription)
                 DispatchQueue.main.async(execute: {
-                    print("Registration error: \(returnedError!.localizedDescription)")
+                     let errorString = "Registration error: \(returnedError!.localizedDescription)"
                     self.setAuthState(nil)
+                    callback(nil, nil, errorString)
                 })
                 return
             }
@@ -201,8 +212,9 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 // A problem occurred constructing the registration response from the JSON.
                 let returnedError: NSError? = ErrorUtilities.error(code: ErrorCode.RegistrationResponseConstructionError, underlyingError: nil, description: "Registration response invalid.")
                 DispatchQueue.main.async(execute: {
-                    print("Registration error: \(returnedError!.localizedDescription)")
+                    let errorString = "Registration error: \(returnedError!.localizedDescription)"
                     self.setAuthState(nil)
+                    callback(nil, nil, errorString)
                 })
                 return
             }
@@ -212,7 +224,7 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
             print("Got registration response: \(registrationResponse.description())")
             
             DispatchQueue.main.async(execute: {
-                callback(configuration, registrationResponse)
+                callback(configuration, registrationResponse, nil)
                 session.invalidateAndCancel()
             })
             
@@ -362,6 +374,7 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
         if (self.authState == authState) {
             return
         }
+        authState?.webid = webid
         self.authState = authState
         //       self.authState?.stateChangeDelegate = self
         self.stateChanged()
@@ -373,16 +386,6 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
         AuthState.saveState(authState: self.authState!)
     }
     
-    
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
-    }
-    
-    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        print("urlSession(_:task:didReceive:completionHandler) called")
-    }
-    
-    
     func writeToTextView(status: String?, message: Any?) {
         var userInfo = [String : Any]()
         if status != nil {
@@ -391,8 +394,23 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
         if message != nil {
             userInfo["message"] = message
         }
-       
+        
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "MessageNotification"), object: nil, userInfo: userInfo as [AnyHashable : Any])
     }
     
+    
+    // MARK: - AuthChangeStateDelegate method
+    func didChange(state: AuthState?) {
+        stateChanged()
+    }
+    
+    // MARK: - URLSessionDelegate methods
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        print("urlSession(_:task:didReceive:completionHandler) called")
+    }
+
 }

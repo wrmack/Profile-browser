@@ -57,7 +57,7 @@ class POPToken: NSObject {
         // Set up payload claims
         let issuer = authState.lastAuthorizationResponse?.request?.clientID
         let components = URLComponents(string: webId)
-        let audience = "\(components!.scheme!)://\(components!.host!):\(components!.port!)"
+        let audience = components!.port != nil ? "\(components!.scheme!)://\(components!.host!):\(components!.port!)" : "\(components!.scheme!)://\(components!.host!)"
         let issuedAtTime = Date().timeIntervalSince1970
         let expiryTime = Date(timeIntervalSinceNow: 3600).timeIntervalSince1970
         let idToken = authState.lastTokenResponse?.idToken

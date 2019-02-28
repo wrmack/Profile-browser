@@ -53,16 +53,27 @@ class EditProfileInteractor: NSObject, EditProfileBusinessLogic, EditProfileData
         let replacementTripleObj = (request.triple!.object.1 == "Literal") ? "\"\(request.triple!.object.0)\"" : "<\(request.triple!.object.0)>"
         let replacementTriple = "\(replacementTripleSub) \(replacementTriplePred) \(replacementTripleObj) ."
         
-        var urlRequest = URLRequest(url: URL(string: webid!)! )
-        urlRequest.httpMethod = "PATCH"
-        urlRequest.setValue("application/sparql-update", forHTTPHeaderField: "Content-Type")
+        // Get saved authstate to use saved tokens
         let authState = AuthState.loadState()
 //        authState = nil
+        
+        // No saved authstate
         if authState == nil {
             callback("unauthorized")
             return
         }
+        
+        // Saved authstate not for this webid
+        if authState?.webid != webid  {
+            callback("unauthorized")
+            return
+        }
+        
         let popToken = POPToken(webId: webid!, authState: authState!)
+        
+        var urlRequest = URLRequest(url: URL(string: webid!)! )
+        urlRequest.httpMethod = "PATCH"
+        urlRequest.setValue("application/sparql-update", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(popToken!.token!)", forHTTPHeaderField: "Authorization") // Check!!!!
         let bodyString = "DELETE DATA { \(originalTriple)}; INSERT DATA {\(replacementTriple)}"
         let body = bodyString.data(using: .utf8)

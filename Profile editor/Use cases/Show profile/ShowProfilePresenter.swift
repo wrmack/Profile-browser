@@ -19,6 +19,7 @@ protocol ShowProfilePresentationLogic {
 class ShowProfilePresenter: ShowProfilePresentationLogic {
     weak var viewController: ShowProfileDisplayLogic?
     var me: String?
+    var meFragment: String?
     var hostURL: String?
     var formattedName: String?
     
@@ -40,7 +41,6 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
         var sections = [Section]()
         var profileDocument: String?
         var subj: String?
-        var tripleIndex = 0
         var currentSection: Section?
         // Get profile document
         for triple in triples! {
@@ -61,6 +61,11 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
             let (predicate, _) = triple.predicate
             if subject == profileDocument && predicate == "http://xmlns.com/foaf/0.1/primaryTopic" {
                 me = triple.object.0
+                if me!.contains("#") {
+                    let idx1 = me!.lastIndex(of: "#")
+                    let  idxAfter = me!.index(after: idx1!)
+                    meFragment = String(me!.suffix(from: idxAfter))
+                }
                 break
             }
         }
@@ -80,46 +85,37 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
         // Having got name of the initial section for 'me' as the subject, get all data to add to the section body.
         for triple in triples! {
             let (subject, _) = triple.subject
-            if subject == me {
+            if subject == me! {
                 currentSection!.sectionData.append(getPredAndObjectFromTriple(triple: triple, triples: triples!))
             }
-            tripleIndex += 1
-            if subject != me && subject != profileDocument {
-                if currentSection != nil {
-                    sections.append(currentSection!)
-                }
-                break
-            }
         }
-        if tripleIndex < (triples?.count)! {
+         sections.append(currentSection!)
         
-            // Parse all triples starting after the me section
-            currentSection = nil 
-            for index in tripleIndex..<triples!.count {
-                let triple = triples![index]
+        // Parse all triples not being about me
+        currentSection = nil
+        subj = nil
+        
+        for triple in triples! {
+
+            if triple.subject.0 != me {
+                
                 guard let subject = getSubjectFromTriple(triple: triple, triples: triples!) else { continue}
 
-                // Change of subject
-                if subject != subj {
-                    if currentSection != nil {
-                        sections.append(currentSection!)
-                    }
+                // Starting off
+                if currentSection == nil {
+                    currentSection = Section(name: subject)
                     subj = subject
-                    if subj == me {
-                        let subjFriendly = formattedName!
-                        currentSection = Section(name: subjFriendly)
-                    }
-                    else {
-                        currentSection = Section(name: subj!)
-                    }
+                }
+                // Change of subject
+                if subject != subj!  {
+                    sections.append(currentSection!)
+                    subj = subject
+                    currentSection = Section(name: subj!)
                 }
                 currentSection!.sectionData.append(getPredAndObjectFromTriple(triple: triple, triples: triples!))
-                // At end of triples
-                if index == triples?.count {
-                    sections.append(currentSection!)
-                }
             }
         }
+        sections.append(currentSection!)
         let viewModel = ShowProfile.Profile.ViewModel(sections: sections)
         viewController?.displaySections(viewModel: viewModel) 
     }
@@ -134,7 +130,7 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
         }
         let subjectString = triple.subject.0
         let objURL = URL(string: subjectString)
-        if subjectString.contains("#") && objURL!.host == hostURL {
+        if subjectString.contains("#") { //&& objURL!.host == hostURL {
             if subjectString == me {
                 return formattedName
             }
@@ -142,12 +138,18 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
                 let idx1 = subjectString.lastIndex(of: "#")
                 let  idxAfter = subjectString.index(after: idx1!)
                 let fragment = String(subjectString.suffix(from: idxAfter))
-                if fragment != "me" {
+                if fragment != meFragment {
                     let isReference = checkIfReference(fragment: fragment, triples: triples)
                     if isReference == true {
                         return nil
                     }
                 }
+            }
+        }
+        if subjectString.first == "_" {
+            let isReference = checkIfReference(fragment: subjectString, triples: triples)
+            if isReference == true {
+                return nil
             }
         }
        return triple.subject.0
@@ -175,7 +177,7 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
                     let idx1 = objString!.lastIndex(of: "#")
                     let  idxAfter = objString!.index(after: idx1!)
                     let ref = String(objString!.suffix(from: idxAfter))
-                    if ref != "me" {
+                    if ref != meFragment {
                         if let details = getDetailsFromReference(reference: ref, triples: triples) {
                             objString = details
                         }

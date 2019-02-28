@@ -172,8 +172,11 @@ class AuthState: NSObject, Codable {
      */
     weak var errorDelegate: AuthStateErrorDelegate?
     
+    /*
+     Associate a webid with authstate so when loaded can check if saved authstate applies to current webid
+     */
+    var webid: String?
     
-
     
     // MARK: - Object lifecycle
     
@@ -220,6 +223,7 @@ class AuthState: NSObject, Codable {
         case authorizationError
         case scope
         case needsTokenRefresh
+        case webid
     }
     
     
@@ -231,6 +235,7 @@ class AuthState: NSObject, Codable {
         try container.encode(authorizationError?.localizedDescription, forKey: CodingKeys.authorizationError)
         try container.encode(scope, forKey: .scope)
         try container.encode(needsTokenRefresh, forKey: .needsTokenRefresh)
+        try container.encode(webid, forKey:.webid)
     }
     
     
@@ -241,17 +246,32 @@ class AuthState: NSObject, Codable {
         refreshToken = try values.decode(String.self, forKey: .refreshToken)
         scope = try values.decode(String.self, forKey: .scope)
         needsTokenRefresh = try values.decode(Bool.self, forKey: .needsTokenRefresh)
+        webid = try values.decode(String.self, forKey: .webid)
     }
     
     
     func description() -> String? {
-        return String(format: """
-        <%@: %p, isAuthorized: %@, refreshToken: "%@", \
-        scope: "%@", accessToken: "%@", \
-        accessTokenExpirationDate: %@, idToken: "%@", \
-        lastAuthorizationResponse: %@, lastTokenResponse: %@, \
-        lastRegistrationResponse: %@, authorizationError: %@>
-        """, NSStringFromClass(type(of: self).self), self, (isAuthorized) ? "YES" : "NO", TokenUtilities.redact(refreshToken)!, scope!, TokenUtilities.redact(accessToken)!, accessTokenExpirationDate! as CVarArg, TokenUtilities.redact(idToken)!, lastAuthorizationResponse!, lastTokenResponse!, lastRegistrationResponse!, authorizationError! as CVarArg)
+//        return String(format: """
+//        <%@: %p, isAuthorized: %@, refreshToken: "%@", \
+//        scope: "%@", accessToken: "%@", \
+//        accessTokenExpirationDate: %@, idToken: "%@", \
+//        lastAuthorizationResponse: %@, lastTokenResponse: %@, \
+//        lastRegistrationResponse: %@, authorizationError: %@>
+//        """, NSStringFromClass(type(of: self).self), self, (isAuthorized) ? "YES" : "NO", TokenUtilities.redact(refreshToken)!, scope!, TokenUtilities.redact(accessToken)!, accessTokenExpirationDate! as CVarArg, TokenUtilities.redact(idToken)!, lastAuthorizationResponse!, lastTokenResponse!, lastRegistrationResponse!, authorizationError! as CVarArg)
+        
+        return """
+        \(NSStringFromClass(type(of:self).self)) \(self)
+        isAuthorized: \(isAuthorized)
+        refreshToken: \(TokenUtilities.redact(refreshToken)!)
+        scope: \(scope!)
+        accessToken: \(TokenUtilities.redact(accessToken)!)
+        accessTokenExpirationDate: \(accessTokenExpirationDate!)
+        idToken: \(TokenUtilities.redact(idToken)!)
+        lastAuthorizationResponse: \(lastAuthorizationResponse!)
+        lastTokenResponse: \(lastTokenResponse!)
+        lastRegistrationResponse: \(lastRegistrationResponse!)
+        authorizationError" \(authorizationError!)
+        """
     }
     
     
