@@ -42,11 +42,28 @@ class ShowInfoPresenter: ShowInfoPresentationLogic {
         attString.append(NSAttributedString(string: "Quick info\n", attributes: heading1Atts))
         attString.append(NSAttributedString(string: "Enter a webid\n", attributes: heading2Atts))
  //       attString.append(NSAttributedString(string: "Remaining list:\n", attributes: boldnormAtts))
-        attString.append(NSAttributedString(string: "A webid is like:\n    https://username.inrupt.net/profile/card#me\nThis app only handles https:// (not http://).\nA webid ends with a fragment (marked by #) like #me or #i.\n", attributes: normAtts))
+        attString.append(NSAttributedString(string: """
+A webid is like:
+   https://username.inrupt.net/profile/card#me
+This app only handles https:// (not http://).
+A webid ends with a fragment (marked by #) like #me or #i.
+
+""", attributes: normAtts))
+        
         attString.append(NSAttributedString(string: "Features\n", attributes: heading2Atts))
-        attString.append(NSAttributedString(string: "Maintains a recents list to save having to re-enter webids.\nPress a table row to see data in triple form.\nApp will assess whether object can be acessed and provide a link to load the object.  This is experimental and may or may not be successful.\n", attributes: normAtts))
+        attString.append(NSAttributedString(string: """
+Triples with a common subject are contained in separate table sections.
+Sections can be folded so easier to navigate.
+App maintains a 'recents' list to avoid having to re-type webids.
+Press on a table row to examine triple format.
+App tries to assess whether the object is browseable and if so a link button is enabled to load it.  This is experimental.
+
+""", attributes: normAtts))
+        
         attString.append(NSAttributedString(string: "Limitations\n", attributes: heading2Atts))
-        attString.append(NSAttributedString(string: "When the row detail is presented, it is possible to edit the object.  When Save is pressed the app will attempt to authenticate the user using tokens.  Solid server needs to be patched to accept tokens from native apps. It is possible to save an edit using a patched version.\n", attributes: normAtts))
+        attString.append(NSAttributedString(string: """
+When examing triple format, it is possible to edit the triple object; when Save is pressed the app will attemmpt to authenticate the user but a patched solid server is required for this
+""", attributes: normAtts))
         
         let viewModel = ShowInfo.Info.ViewModel(attString: attString)
         viewController?.displayAttributedString(viewModel: viewModel) 
