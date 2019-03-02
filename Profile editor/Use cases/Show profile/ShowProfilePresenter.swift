@@ -83,13 +83,20 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
         }
         
         // Having got name of the initial section for 'me' as the subject, get all data to add to the section body.
-        for triple in triples! {
-            let (subject, _) = triple.subject
-            if subject == me! {
-                currentSection!.sectionData.append(getPredAndObjectFromTriple(triple: triple, triples: triples!))
+        if me != nil {
+            for triple in triples! {
+                let (subject, _) = triple.subject
+                if subject == me! {
+                    if currentSection == nil {
+                        currentSection = Section(name: me!)
+                    }
+                    currentSection!.sectionData.append(getPredAndObjectFromTriple(triple: triple, triples: triples!))
+                }
+            }
+            if currentSection != nil {
+                 sections.append(currentSection!)
             }
         }
-         sections.append(currentSection!)
         
         // Parse all triples not being about me
         currentSection = nil

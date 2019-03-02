@@ -94,13 +94,14 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(handleMessageNotifications(notification: )), name: Notification.Name(rawValue: "MessageNotification"), object: nil)
         
+        let components = URLComponents(string: webId!)
+        let issuerString = components!.port != nil ? "\(components!.scheme!)://\(components!.host!):\(components!.port!)" : "\(components!.scheme!)://\(components!.host!)"
+        fetchConfiguration(issuer: issuerString)
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        let components = URLComponents(string: webId!)
-        let issuerString = components!.port != nil ? "\(components!.scheme!)://\(components!.host!):\(components!.port!)" : "\(components!.scheme!)://\(components!.host!)"
-        fetchConfiguration(issuer: issuerString)
+
     }
     
     // MARK: - VIP
@@ -141,9 +142,17 @@ class AuthenticateWithProviderViewController: UIViewController, AuthenticateWith
     // Authentication to provider
     func authenticateWithProvider(configuration: ProviderConfiguration, clientID: String, clientSecret: String?) {
         let request = AuthenticateWithProvider.Authenticate.Request(configuration: configuration, clientID: clientID, clientSecret: clientSecret)
-        interactor?.authenticateWithProvider(request: request, viewController: self)
+        interactor?.authenticateWithProvider(request: request, viewController: self, callback: {errorString in
+            if errorString != nil {
+                self.displayAlertWithMessage(title: "Error", message: errorString!)
+            }
+            else {
+                self.router!.returnFromAuthenticationController()
+            }
+        })
     }
 
+    
     func logout() {
         interactor!.logout() 
     }

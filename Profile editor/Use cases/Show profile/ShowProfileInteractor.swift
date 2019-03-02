@@ -16,10 +16,11 @@ import JavaScriptCore
 
 
 protocol ShowProfileBusinessLogic {
-    func fetchProfile(request: ShowProfile.Profile.Request)
+    func fetchProfile(request: ShowProfile.Profile.Request, callback: @escaping (String?)->())
     func getStoreTriples()-> [Triple]?
     func addSelectedItemToDataStore(item: (String, String, Int))
     func saveWebIDToRecents(webID: String)
+    func getWebid()->String 
 }
 
 protocol ShowProfileDataStore {
@@ -41,16 +42,46 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
 
     // MARK: - VIP
     
-    func fetchProfile(request: ShowProfile.Profile.Request) {
+    func fetchProfile(request: ShowProfile.Profile.Request, callback: @escaping (String?)->()) {
         webid = request.webid
         if context == nil { setupContext(); setupRdfLib()}
         let url = URL(string: request.webid! )
-        fetch(url: url!, callback: { response, mimetype in
-            print("Mime-type: \(mimetype)")
-            print("Data: \n\(response)")
+        fetch(url: url!, callback: { response, httpURLResponse, error  in
+            guard error == nil else {
+                DispatchQueue.main.async {
+                    callback(error!.localizedDescription)
+                }
+                return
+            }
+            
+            let mimeType = httpURLResponse!.mimeType
+            let statusCode = httpURLResponse!.statusCode
+            
+            print("Mime-type: \(mimeType!)")
+            print("Status code: \(statusCode)")
+            print("Data: \n\(response!)")
+
+            guard statusCode == 200 else {
+                DispatchQueue.main.async {
+                    callback("Status code \(statusCode)")
+                }
+                return
+            }
+            guard mimeType == "text/turtle" || mimeType == "text/n3" else {
+                DispatchQueue.main.async {
+                    callback("Content mimetype is not text/turtle")
+                }
+                return
+            }
             self.context?.evaluateScript("var store = RDF.graph();")
-            self.context?.evaluateScript("RDF.parse(`" + response + "`, store, '" + request.webid! + "', 'text/turtle');")
+            self.context?.evaluateScript("RDF.parse(`" + response! + "`, store, '" + request.webid! + "', 'text/turtle');")
             let statementsArray = self.context!.objectForKeyedSubscript("store")!.toDictionary()!["statements"] as! [Any]
+            if statementsArray.count == 0 {
+                DispatchQueue.main.async {
+                    callback("Could not be parsed")
+                }
+                return
+            }
 //            print("Store statements: \(statementsArray)")
             var triples = [Triple]()
             var count = 0
@@ -103,6 +134,10 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
     
     func getStoreTriples()-> [Triple]? {
         return storeTriples
+    }
+    
+    func getWebid()->String {
+        return webid!
     }
     
     func addSelectedItemToDataStore(item: (String, String, Int)) {
@@ -160,23 +195,21 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
     /*
      Url fetcher with callback
      */
-    func fetch(url: URL, callback: @escaping (String, String) -> Void) {
+    func fetch(url: URL, callback: @escaping (String?, HTTPURLResponse?, Error?) -> Void) {
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         let task = session.dataTask(with: url) { data, response, error in
             if let error = error {
                 print(error)
-                return
+                callback(nil, nil, error)
             }
-            print("\nResponse:\n\(response! as Any)")
-            guard let httpResponse = response as? HTTPURLResponse,
-                (200...299).contains(httpResponse.statusCode) else {
-                    print((response as? HTTPURLResponse)?.allHeaderFields as! [String : Any] )
-                    return
+            else {
+                print("\nResponse:\n\(response! as Any)")
+                let httpResponse = response as? HTTPURLResponse
+                print("\nAll headers:\n\(httpResponse!.allHeaderFields as! [String : Any])")
+                
+                let dataString = String(data: data!, encoding: .utf8)
+                callback(dataString!, httpResponse!, nil)
             }
-            print("\nAll headers:\n\(httpResponse.allHeaderFields as! [String : Any])")
-            
-            let string = String(data: data!, encoding: .utf8)
-            callback(string!, httpResponse.mimeType!)
         }
         task.resume()
     }
@@ -186,6 +219,7 @@ class ShowProfileInteractor: NSObject, ShowProfileBusinessLogic, ShowProfileData
         let defaults = UserDefaults.standard
         if let recentsData = defaults.data(forKey: "Recents") {
             recentsArray = try! JSONDecoder().decode([String].self, from: recentsData)
+            guard webID != recentsArray.first else {return}
             if recentsArray.count > 15 {
                 recentsArray.removeLast(1)
             }

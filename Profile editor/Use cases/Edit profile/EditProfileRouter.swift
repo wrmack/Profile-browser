@@ -14,7 +14,9 @@ import UIKit
 
 @objc protocol EditProfileRoutingLogic {
     func navigateToAuthentication()
+    func returnFromAuthenticationController()
     func showMasterViewController()
+    func showMasterViewControllerAfterSelectingLink()
 }
 
 protocol EditProfileDataPassing {
@@ -32,6 +34,12 @@ class EditProfileRouter: NSObject, EditProfileRoutingLogic, EditProfileDataPassi
         viewController!.show(authenticationVC, sender: nil)
     }
     
+    func returnFromAuthenticationController() {
+        let navC = viewController!.parent! as! UINavigationController
+        if navC.children.count > 1 {
+            navC.popViewController(animated: true)
+        }
+    }
 
     func showMasterViewController() {
         viewController?.navigationController?.navigationController?.popToRootViewController(animated: true)
@@ -41,33 +49,23 @@ class EditProfileRouter: NSObject, EditProfileRoutingLogic, EditProfileDataPassi
         showProfileVC.router!.returnFromEditing()
     }
 
+    
+    func showMasterViewControllerAfterSelectingLink() {
+        viewController?.navigationController?.navigationController?.popToRootViewController(animated: true)
+        let splitVC = (UIApplication.shared.delegate! as! AppDelegate).window!.rootViewController! as! UISplitViewController
+        let showProfileNavC = splitVC.viewControllers[0]
+        let showProfileVC = showProfileNavC.children[0] as! ShowProfileViewController
+        var destination = showProfileVC.router?.dataStore
+        passDataToShowProfile(source: dataStore!, destination: &destination!)
+        showProfileVC.router!.returnAfterSelectingLink()
+    }
+    
 
-  //func routeToSomewhere(segue: UIStoryboardSegue?)
-  //{
-  //  if let segue = segue {
-  //    let destinationVC = segue.destination as! SomewhereViewController
-  //    var destinationDS = destinationVC.router!.dataStore!
-  //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
-  //  } else {
-  //    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-  //    let destinationVC = storyboard.instantiateViewController(withIdentifier: "SomewhereViewController") as! SomewhereViewController
-  //    var destinationDS = destinationVC.router!.dataStore!
-  //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
-  //    navigateToSomewhere(source: viewController!, destination: destinationVC)
-  //  }
-  //}
-
-  // MARK: Navigation
-  
-  //func navigateToSomewhere(source: EditProfileViewController, destination: SomewhereViewController)
-  //{
-  //  source.show(destination, sender: nil)
-  //}
   
   // MARK: Passing data
   
-  //func passDataToSomewhere(source: EditProfileDataStore, destination: inout SomewhereDataStore)
-  //{
-  //  destination.name = source.name
-  //}
+    func passDataToShowProfile(source: EditProfileDataStore, destination: inout ShowProfileDataStore) {
+        destination.webid = source.webid
+    }
+    
 }

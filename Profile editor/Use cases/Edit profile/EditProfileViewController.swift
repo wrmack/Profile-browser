@@ -13,7 +13,7 @@
 import UIKit
 
 protocol EditProfileDisplayLogic: class {
-    func displaySomething(viewModel: EditProfile.EditTriple.ViewModel)
+//    func displaySomething(viewModel: EditProfile.EditTriple.ViewModel)
 }
 
 
@@ -26,9 +26,8 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
     @IBOutlet weak var subjectLabel: UILabel!
     @IBOutlet weak var predicateLabel: UILabel!
     @IBOutlet weak var objectLabel: UILabel!
-    
     @IBOutlet weak var objectTextField: UITextField!
-    
+    @IBOutlet weak var linkButton: UIButton!
     
     
     // MARK: Object lifecycle
@@ -79,13 +78,24 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
     
     
     override func viewDidAppear(_ animated: Bool) {
+        linkButton.isEnabled = false
         let triple  = getSelectedItem()
         subjectLabel.text = triple.subject.0
         predicateLabel.text = triple.predicate.0
         objectLabel.text = triple.object.0
-        
         objectTextField.text = triple.object.0
+        let obj = triple.object.0 as String
+        if let objURL = URL(string: obj) {
+            let components = URLComponents(url: objURL, resolvingAgainstBaseURL: false)
+            if (components?.fragment != nil || String(components!.path.suffix(3)) == "ttl") && components?.scheme == "https" {
+                if String(components!.path.suffix(3)) == "ttl" {
+                    
+                }
+                linkButton.isEnabled = true
+            }
+        }
     }
+    
     
     // MARK: - User actions
     
@@ -93,7 +103,13 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
         saveTriple()
     }
     
-
+    @IBAction func linkButtonPressed(_ sender: Any) {
+        let webidString = objectTextField.text
+        setWebidInDatastore(webid: webidString!)
+        router!.showMasterViewControllerAfterSelectingLink()
+    }
+    
+    
     // MARK: - VIP
 
     func saveTriple() {
@@ -103,11 +119,15 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
         let object = (objectTextField.text!, selectedItem.object.1, selectedItem.object.2)
         let triple = Triple(index: selectedItem.index, subject: subject, predicate: predicate, object: object)
         let request = EditProfile.EditTriple.Request(triple: triple)
-        interactor?.saveTriple(request: request, callback: { message in
-            if message == "unauthorized" {
+        interactor?.saveTriple(request: request, callback: { status, error in
+            if error != nil {
+                self.displayAlertWithMessage(title: "Error", message: error!)
+            }
+            
+            if status == "getTokens" {
                 self.router!.navigateToAuthentication()
             }
-            else if message == "success" {
+            else if status == "success" {
                 let splitViewController = UIApplication.shared.delegate?.window!!.rootViewController as! UISplitViewController
                 if splitViewController.isCollapsed {
                     self.router!.showMasterViewController()
@@ -115,15 +135,28 @@ class EditProfileViewController: UIViewController, EditProfileDisplayLogic {
             }
         })
     }
-
-
-    func displaySomething(viewModel: EditProfile.EditTriple.ViewModel) {
-    //nameTextField.text = viewModel.name
-    }
     
     // MARK: - Datastore
     
     func getSelectedItem()->Triple {
         return interactor!.getSelectedItem()
     }
+    
+    func setWebidInDatastore(webid: String) {
+        interactor!.setWebid(webid: webid)
+    }
+    
+    
+    
+    // MARK: - Alerts
+    
+    func displayAlertWithMessage(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: { _ in
+            NSLog("The \"OK\" alert occured.")
+            self.router!.returnFromAuthenticationController()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
 }

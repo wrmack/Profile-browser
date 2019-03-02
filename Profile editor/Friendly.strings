@@ -86,10 +86,12 @@
 "dc:abstract" = "abstract";
 "dc:abstract" = "abstracts";
 "dc:created" = "created";
+"dc:creator" = "creator";
 "dc:distribution" = "distribution";
 "dc:license" = "license";
 "dc:modified" = "modified";
 "dc:publisher" = "publisher";
+"dc:references" = "references";
 "dc:title" = "title";
 
 "dcat:accessURL" = "access url";
@@ -116,6 +118,7 @@
 "foaf:made" = "made";
 "foaf:maker" = "maker";
 "foaf:mbox_sha1sum" = "email hash";
+"foaf:mailbox" = "mailbox";
 "foaf:member" = "member";
 "foaf:name" = "name";
 "foaf:nick" = "nick";
@@ -139,6 +142,8 @@
 "org:memberOf" = "member of";
 "org:unitOf" = "unit of";
 "org:subOrganizationOf" = "sub-organization of";
+
+"owl:sameAs" = "same as";
 
 "pim:storage" = "storage";
 "pim:preferencesFile" = "preferences";

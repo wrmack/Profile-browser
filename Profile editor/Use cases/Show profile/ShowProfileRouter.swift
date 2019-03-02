@@ -15,6 +15,7 @@ import UIKit
 @objc protocol ShowProfileRoutingLogic {
     func routeToShowProfileItem(segue: UIStoryboardSegue?)
     func returnFromEditing()
+    func returnAfterSelectingLink()
 }
 
 protocol ShowProfileDataPassing {
@@ -40,6 +41,9 @@ class ShowProfileRouter: NSObject, ShowProfileRoutingLogic, ShowProfileDataPassi
         viewController!.itemWasEdited()
     }
   
+    func returnAfterSelectingLink() {
+        viewController!.linkWasSelected()
+    }
     
   // MARK: Passing data
   

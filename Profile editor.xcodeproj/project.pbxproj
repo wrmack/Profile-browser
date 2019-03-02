@@ -30,6 +30,11 @@
 		41972A10220D520A0073EF55 /* ShowProfileInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41972A0A220D520A0073EF55 /* ShowProfileInteractor.swift */; };
 		41972A13220D586C0073EF55 /* rdfbundle.js in Resources */ = {isa = PBXBuildFile; fileRef = 41972A12220D586C0073EF55 /* rdfbundle.js */; };
 		41972A15220D5BA80073EF55 /* ShowProfileSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41972A14220D5BA80073EF55 /* ShowProfileSectionHeaderView.swift */; };
+		4198AA5B222B0DF800898CBD /* ShowInfoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4198AA55222B0DF800898CBD /* ShowInfoPresenter.swift */; };
+		4198AA5E222B0DF800898CBD /* ShowInfoModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4198AA58222B0DF800898CBD /* ShowInfoModels.swift */; };
+		4198AA5F222B0DF800898CBD /* ShowInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4198AA59222B0DF800898CBD /* ShowInfoViewController.swift */; };
+		4198AA60222B0DF800898CBD /* ShowInfoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4198AA5A222B0DF800898CBD /* ShowInfoInteractor.swift */; };
+		4198AA62222B10D600898CBD /* ShowInfoAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4198AA61222B10D600898CBD /* ShowInfoAttributes.swift */; };
 		41B9F9FF2221BE76007A5104 /* Prefix.strings in Resources */ = {isa = PBXBuildFile; fileRef = 41B9F9FE2221BE76007A5104 /* Prefix.strings */; };
 		41B9FA012221DCC7007A5104 /* Language.strings in Resources */ = {isa = PBXBuildFile; fileRef = 41B9FA002221DCC7007A5104 /* Language.strings */; };
 		41B9FA092221FA27007A5104 /* DisplayRecentsPopUpPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B9FA032221FA27007A5104 /* DisplayRecentsPopUpPresenter.swift */; };
@@ -103,6 +108,11 @@
 		41972A0A220D520A0073EF55 /* ShowProfileInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowProfileInteractor.swift; sourceTree = "<group>"; };
 		41972A12220D586C0073EF55 /* rdfbundle.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rdfbundle.js; sourceTree = "<group>"; };
 		41972A14220D5BA80073EF55 /* ShowProfileSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowProfileSectionHeaderView.swift; sourceTree = "<group>"; };
+		4198AA55222B0DF800898CBD /* ShowInfoPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowInfoPresenter.swift; sourceTree = "<group>"; };
+		4198AA58222B0DF800898CBD /* ShowInfoModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowInfoModels.swift; sourceTree = "<group>"; };
+		4198AA59222B0DF800898CBD /* ShowInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowInfoViewController.swift; sourceTree = "<group>"; };
+		4198AA5A222B0DF800898CBD /* ShowInfoInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowInfoInteractor.swift; sourceTree = "<group>"; };
+		4198AA61222B10D600898CBD /* ShowInfoAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowInfoAttributes.swift; sourceTree = "<group>"; };
 		41B9F9FE2221BE76007A5104 /* Prefix.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Prefix.strings; sourceTree = "<group>"; };
 		41B9FA002221DCC7007A5104 /* Language.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Language.strings; sourceTree = "<group>"; };
 		41B9FA032221FA27007A5104 /* DisplayRecentsPopUpPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayRecentsPopUpPresenter.swift; sourceTree = "<group>"; };
@@ -220,6 +230,7 @@
 		419729F3220D4AF70073EF55 /* Use cases */ = {
 			isa = PBXGroup;
 			children = (
+				4198AA54222B0DD300898CBD /* Show info */,
 				41B9FA022221F9E8007A5104 /* Display recents */,
 				41C9B8AE2215575100266A74 /* Authenticate with provider */,
 				419729F4220D4B050073EF55 /* Show profile */,
@@ -264,6 +275,18 @@
 				41972A12220D586C0073EF55 /* rdfbundle.js */,
 			);
 			path = Vendor;
+			sourceTree = "<group>";
+		};
+		4198AA54222B0DD300898CBD /* Show info */ = {
+			isa = PBXGroup;
+			children = (
+				4198AA59222B0DF800898CBD /* ShowInfoViewController.swift */,
+				4198AA5A222B0DF800898CBD /* ShowInfoInteractor.swift */,
+				4198AA55222B0DF800898CBD /* ShowInfoPresenter.swift */,
+				4198AA58222B0DF800898CBD /* ShowInfoModels.swift */,
+				4198AA61222B10D600898CBD /* ShowInfoAttributes.swift */,
+			);
+			path = "Show info";
 			sourceTree = "<group>";
 		};
 		41B9FA022221F9E8007A5104 /* Display recents */ = {
@@ -458,12 +481,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4198AA62222B10D600898CBD /* ShowInfoAttributes.swift in Sources */,
 				41C9B9062215575200266A74 /* AnyDecodable.swift in Sources */,
 				41C9B93B2215575200266A74 /* AuthenticateWithProviderPresenter.swift in Sources */,
 				41C9B9492215575200266A74 /* AuthorizationRequest.swift in Sources */,
 				4132218A22114F8F00CE2523 /* EditProfileViewController.swift in Sources */,
 				41B9FA0D2221FA27007A5104 /* DisplayRecentsPopupViewController.swift in Sources */,
 				4132218822114F8F00CE2523 /* EditProfileRouter.swift in Sources */,
+				4198AA5F222B0DF800898CBD /* ShowInfoViewController.swift in Sources */,
 				41C9B9442215575200266A74 /* AuthenticateWithProviderViewController.swift in Sources */,
 				41C9B93F2215575200266A74 /* AccessToken.swift in Sources */,
 				419729FA220D4D260073EF55 /* WMTextField.swift in Sources */,
@@ -483,6 +508,8 @@
 				41C9B9512215575200266A74 /* RegistrationResponse.swift in Sources */,
 				419729F7220D4CB80073EF55 /* ShowProfileHeaderView.swift in Sources */,
 				41C9B94E2215575200266A74 /* ScopeUtilities.swift in Sources */,
+				4198AA5E222B0DF800898CBD /* ShowInfoModels.swift in Sources */,
+				4198AA60222B0DF800898CBD /* ShowInfoInteractor.swift in Sources */,
 				41C9B9412215575200266A74 /* AuthState.swift in Sources */,
 				41C9B94F2215575200266A74 /* TokenUtilities.swift in Sources */,
 				41C9B94B2215575200266A74 /* PresentationAttributes.swift in Sources */,
@@ -503,6 +530,7 @@
 				419729E0220D1CEB0073EF55 /* AppDelegate.swift in Sources */,
 				41C9B9422215575200266A74 /* ProviderConfiguration.swift in Sources */,
 				41C9B93E2215575200266A74 /* POPToken.swift in Sources */,
+				4198AA5B222B0DF800898CBD /* ShowInfoPresenter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

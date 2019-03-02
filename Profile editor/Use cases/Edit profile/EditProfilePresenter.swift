@@ -13,7 +13,7 @@
 import UIKit
 
 protocol EditProfilePresentationLogic {
-    func presentSomething(response: EditProfile.EditTriple.Response)
+//    func presentSomething(response: EditProfile.EditTriple.Response)
 }
 
 
@@ -21,10 +21,4 @@ protocol EditProfilePresentationLogic {
 class EditProfilePresenter: EditProfilePresentationLogic {
     weak var viewController: EditProfileDisplayLogic?
 
-    // MARK: Do something
-
-    func presentSomething(response: EditProfile.EditTriple.Response) {
-        let viewModel = EditProfile.EditTriple.ViewModel()
-        viewController?.displaySomething(viewModel: viewModel)
-    }
 }

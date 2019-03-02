@@ -85,13 +85,23 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dlK-Jj-f2F">
+                                <rect key="frame" x="325" y="251" width="30" height="59"/>
+                                <fontDescription key="fontDescription" name="Menlo-Bold" family="Menlo" pointSize="40"/>
+                                <state key="normal" title="➚"/>
+                                <connections>
+                                    <action selector="linkButtonPressed:" destination="JEX-9P-axG" eventType="touchUpInside" id="Pks-mS-H0k"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="VUw-jc-0yf" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="eSv-S7-VnN" secondAttribute="trailing" symbolic="YES" id="0mq-mQ-A87"/>
                             <constraint firstItem="DbJ-6B-cus" firstAttribute="firstBaseline" secondItem="n01-Gz-LDe" secondAttribute="baseline" constant="32" id="66q-Yf-5J5"/>
                             <constraint firstItem="23a-aD-puh" firstAttribute="top" secondItem="eSv-S7-VnN" secondAttribute="bottom" constant="45" id="7gq-RC-rXe"/>
+                            <constraint firstItem="dlK-Jj-f2F" firstAttribute="centerY" secondItem="n01-Gz-LDe" secondAttribute="centerY" id="98l-JN-1L4"/>
                             <constraint firstItem="zVS-ef-5Nk" firstAttribute="top" secondItem="d4J-5w-Fhj" secondAttribute="bottom" constant="6" id="Ebi-so-uiw"/>
+                            <constraint firstItem="dlK-Jj-f2F" firstAttribute="trailing" secondItem="DbJ-6B-cus" secondAttribute="trailing" id="FGt-ZD-w63"/>
                             <constraint firstItem="VUw-jc-0yf" firstAttribute="bottom" secondItem="DbJ-6B-cus" secondAttribute="bottom" constant="338" id="Rfv-Yq-Kh8"/>
                             <constraint firstItem="n01-Gz-LDe" firstAttribute="leading" secondItem="d4J-5w-Fhj" secondAttribute="leading" id="SGs-Tn-65a"/>
                             <constraint firstItem="zVS-ef-5Nk" firstAttribute="trailing" secondItem="3N6-fd-PVD" secondAttribute="trailing" id="WEt-i1-3mv"/>
@@ -125,6 +135,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="linkButton" destination="dlK-Jj-f2F" id="7cb-Yf-R1T"/>
                         <outlet property="objectLabel" destination="zVS-ef-5Nk" id="oR7-Kf-DJ4"/>
                         <outlet property="objectTextField" destination="DbJ-6B-cus" id="aIp-Xh-lQk"/>
                         <outlet property="predicateLabel" destination="3N6-fd-PVD" id="oJM-UL-bQl"/>
@@ -194,6 +205,11 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Enter a webid" id="Zdf-7t-Un8">
+                        <barButtonItem key="leftBarButtonItem" title="Info" id="2qD-bL-K3Q">
+                            <connections>
+                                <segue destination="9Cl-04-dn1" kind="show" id="OqZ-TN-lzN"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" enabled="NO" title="Fold all" id="rMl-PZ-i6o">
                             <connections>
                                 <action selector="foldAllButtonPressed:" destination="7bK-jq-Zjz" id="swt-nR-Aoj"/>
@@ -207,6 +223,38 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Rux-fX-hf1" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="709" y="-630"/>
+        </scene>
+        <!--Show Info View Controller-->
+        <scene sceneID="Ect-Z8-xbf">
+            <objects>
+                <viewController id="9Cl-04-dn1" customClass="ShowInfoViewController" customModule="Profile_editor" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="TgJ-Ef-Qad">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uwc-NW-boG">
+                                <rect key="frame" x="16" y="80" width="343" height="556"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="uwc-NW-boG" firstAttribute="top" secondItem="1h0-uR-s6l" secondAttribute="top" constant="16" id="232-to-x17"/>
+                            <constraint firstItem="uwc-NW-boG" firstAttribute="leading" secondItem="1h0-uR-s6l" secondAttribute="leading" constant="16" id="36P-kf-HNH"/>
+                            <constraint firstItem="1h0-uR-s6l" firstAttribute="bottom" secondItem="uwc-NW-boG" secondAttribute="bottom" constant="31" id="E2V-oP-cqC"/>
+                            <constraint firstItem="1h0-uR-s6l" firstAttribute="trailing" secondItem="uwc-NW-boG" secondAttribute="trailing" constant="16" id="lbD-pT-2rd"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="1h0-uR-s6l"/>
+                    </view>
+                    <connections>
+                        <outlet property="textView" destination="uwc-NW-boG" id="8wy-8q-0jf"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="uYP-oT-n04" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1476" y="-630.13493253373315"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="r7l-gg-dq7">
@@ -226,6 +274,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Tll-UG-LXB"/>
+        <segue reference="6S0-TO-JiA"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -15,7 +15,7 @@ import UIKit
 protocol AuthenticateWithProviderBusinessLogic {
     func fetchProviderConfiguration(request: AuthenticateWithProvider.FetchConfiguration.Request, callback: @escaping (ProviderConfiguration?, String?)->())
     func registerClient(request: AuthenticateWithProvider.RegisterClient.Request, callback: @escaping (_ configuration: ProviderConfiguration?, _ registrationResponse:  RegistrationResponse?, _ errorString: String?) -> Void)
-    func authenticateWithProvider(request: AuthenticateWithProvider.Authenticate.Request, viewController: AuthenticateWithProviderViewController)
+    func authenticateWithProvider(request: AuthenticateWithProvider.Authenticate.Request, viewController: AuthenticateWithProviderViewController, callback: @escaping (String?)->())
     func fetchUserInfo(request: AuthenticateWithProvider.UserInfo.Request)
     func logout()
     func processMessage(request: AuthenticateWithProvider.DisplayMessages.Request) 
@@ -234,7 +234,7 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
     
     // Authentication request
     
-    func authenticateWithProvider(request: AuthenticateWithProvider.Authenticate.Request, viewController: AuthenticateWithProviderViewController) {
+    func authenticateWithProvider(request: AuthenticateWithProvider.Authenticate.Request, viewController: AuthenticateWithProviderViewController, callback: @escaping (String?)->()) {
         
         // Construct authorisation request
         
@@ -257,27 +257,30 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
         // Get HandleAuthenticationServices to launch the ASWebauthenticationServices view controller
         // If successful, the authorization tokens are returned in the callback.
         // The authorization flow is stored in the app delegate.
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { print("Error accessing AppDelegate"); return }
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { callback("Error accessing AppDelegate"); return }
         let authSession = AuthenticationSession()
         appDelegate.currentAuthorizationFlow = authSession.fetchAuthState(authorizationRequest: request, presentingViewController: viewController) { authState, error in
             
-            if error != nil {
-                self.writeToTextView(status: "Error", message: error?.localizedDescription)
+            if error == nil {
+                self.writeToTextView(status: "Got authorization code and state code\n\nRequesting tokens...\n\n", message: nil)
+                self.writeToTextView(status: "Got access token: \n", message: "\(authState!.lastTokenResponse!.accessToken!)\n")
+                self.writeToTextView(status: "\nGot id token: \n", message: "\(authState!.lastTokenResponse!.idToken!)\n")
+                self.writeToTextView(status: "\nGot refresh token:\n", message: "\(authState!.lastTokenResponse!.refreshToken!)")
+                if let authState = authState {
+                    self.setAuthState(authState)
+                    print("Got authorization tokens. \nAccess token: \(authState.lastTokenResponse!.accessToken!) \nID token: \(authState.lastTokenResponse!.idToken!)")
+                    callback(nil)
+                }
             }
-            self.writeToTextView(status: "Got authorization code and state code\n\nRequesting tokens...\n\n", message: nil)
-            self.writeToTextView(status: "Got access token: \n", message: "\(authState!.lastTokenResponse!.accessToken!)\n")
-            self.writeToTextView(status: "\nGot id token: \n", message: "\(authState!.lastTokenResponse!.idToken!)\n")
-            self.writeToTextView(status: "\nGot refresh token:\n", message: "\(authState!.lastTokenResponse!.refreshToken!)")
-            if let authState = authState {
-                self.setAuthState(authState)
-                print("Got authorization tokens. \nAccess token: \(authState.lastTokenResponse!.accessToken!) \nID token: \(authState.lastTokenResponse!.idToken!)")
-            } else {
-                print("Authorization error: \(error?.localizedDescription ?? "DEFAULT_ERROR")")
+            else {
+                let errorString = "Authorization error: \(error?.localizedDescription ?? "DEFAULT_ERROR")"
                 self.setAuthState(nil)
+                callback(errorString)
             }
         }
             
     }
+    
     
     func logout() {
 //        let cookieStorage = HTTPCookieStorage.shared

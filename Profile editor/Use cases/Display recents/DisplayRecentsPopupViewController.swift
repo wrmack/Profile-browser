@@ -46,7 +46,7 @@ class DisplayRecentsPopupViewController: UIViewController, DisplayRecentsPopupDi
     private let TITLE_Y: CGFloat = 60
     private let TITLE_HEIGHT: CGFloat = 28.0
     private let CANCEL_BUTTON_WIDTH: CGFloat = 56.0
-    private let TOOLBAR_HEIGHT: CGFloat = 100.0
+    private let TOOLBAR_HEIGHT: CGFloat = 44.0
     private let MAXIMUM_TABLE_WIDTH: CGFloat = 300.0
     private let MAXIMUM_TABLE_HEIGHT: CGFloat = 464.0
     private let TABLE_CELL_HEIGHT: CGFloat = 42.0
@@ -93,11 +93,12 @@ class DisplayRecentsPopupViewController: UIViewController, DisplayRecentsPopupDi
         theToolbar = UIView(frame: toolbarRect)
         self.view.addSubview(theToolbar!)
         
-//        theToolbar!.translatesAutoresizingMaskIntoConstraints = false
-//        theToolbar!.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-//        theToolbar!.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-//        theToolbar!.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-//        theToolbar!.heightAnchor.constraint(equalToConstant: TOOLBAR_HEIGHT).isActive = true
+        let guide = view.safeAreaLayoutGuide
+        theToolbar!.translatesAutoresizingMaskIntoConstraints = false
+        theToolbar!.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        theToolbar!.topAnchor.constraint(equalTo: guide.topAnchor).isActive = true
+        theToolbar!.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        theToolbar!.heightAnchor.constraint(equalToConstant: TOOLBAR_HEIGHT).isActive = true
         
         // Cancel button
         
@@ -111,7 +112,7 @@ class DisplayRecentsPopupViewController: UIViewController, DisplayRecentsPopupDi
         
         theTitleLabel = UILabel(frame:CGRect.zero)
         theTitleLabel!.textAlignment = NSTextAlignment.center
-        theTitleLabel!.font = UIFont.systemFont(ofSize: 17.0)
+        theTitleLabel!.font = UIFont.boldSystemFont(ofSize: 17)
         theTitleLabel!.textColor = UIColor(white:0.0, alpha:1.0)
         theTitleLabel!.shadowColor = UIColor(white:0.65, alpha:1.0)
         theTitleLabel!.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
@@ -120,7 +121,8 @@ class DisplayRecentsPopupViewController: UIViewController, DisplayRecentsPopupDi
         theTitleLabel!.text = NSLocalizedString("Recent", comment:"title")
         theToolbar!.addSubview(theTitleLabel!)
 
-        // Autolayout of
+        // Autolayout of cancel button and title
+        
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         cancelButton.leadingAnchor.constraint(equalTo:theToolbar!.leadingAnchor, constant: 10).isActive = true
         cancelButton.bottomAnchor.constraint(equalTo: theToolbar!.bottomAnchor, constant: -7).isActive = true
@@ -135,15 +137,18 @@ class DisplayRecentsPopupViewController: UIViewController, DisplayRecentsPopupDi
         
         // Table
         
-        var tableRect = viewRect
-        tableRect.origin.y += TOOLBAR_HEIGHT
-        tableRect.size.height -= TOOLBAR_HEIGHT
-        theTableView = UITableView(frame:tableRect)
+        theTableView = UITableView(frame:CGRect.zero)
         theTableView!.autoresizingMask = [UIView.AutoresizingMask.flexibleWidth, UIView.AutoresizingMask.flexibleHeight]
         theTableView!.dataSource = self
         theTableView!.delegate = self
         theTableView!.rowHeight = TABLE_CELL_HEIGHT
         self.view.addSubview(theTableView!)
+        
+        theTableView!.translatesAutoresizingMaskIntoConstraints = false
+        theTableView!.topAnchor.constraint(equalTo: theToolbar!.bottomAnchor).isActive = true
+        theTableView!.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -7).isActive = true
+        theTableView!.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        theTableView!.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         
         fetchRecents()
     }

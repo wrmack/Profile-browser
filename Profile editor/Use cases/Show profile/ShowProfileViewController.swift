@@ -118,13 +118,33 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
         }
         fetchProfile(webid: savedWebid!.name!)
     }
+    
+    
+    func linkWasSelected() {
+        startActivityIndicator()
+        let selectedWebid = getWebid()
+        let webid = WebID(name: selectedWebid)
+        let encodedWebid = try? JSONEncoder().encode(webid)
+        UserDefaults.standard.set(encodedWebid, forKey: "WebID")
+        (tableView.tableHeaderView as! ShowProfileHeaderView).webIDTextField?.text = selectedWebid
+        fetchProfile(webid: selectedWebid)
+    }
 
     
     // MARK: - VIP
     
     func fetchProfile(webid: String) {
+        guard let components = URLComponents(string: webid) else { return}
+         if components.scheme != "https" {
+            displayAlertWithMessage(title: "Error", message: "Must be https")
+            return
+        }
         let request = ShowProfile.Profile.Request(webid: webid)
-        interactor?.fetchProfile(request: request)
+        interactor?.fetchProfile(request: request, callback: { errorString in
+            if errorString != nil {
+                self.displayAlertWithMessage(title: "Error", message: errorString!)
+            }
+        })
     }
     
     func displaySections(viewModel: ShowProfile.Profile.ViewModel) {
@@ -148,6 +168,9 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
         interactor!.addSelectedItemToDataStore(item: item)
     }
     
+    func getWebid()-> String {
+        return interactor!.getWebid()
+    }
     
     // MARK: - User actions
     
@@ -283,6 +306,12 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
     
     func startActivityIndicator() {
         if activityIndicator == nil {
+            Timer.scheduledTimer(withTimeInterval: 5, repeats: false, block: { timer in
+                print("Timer fired")
+                if self.activityIndicator?.isAnimating == true {
+                    self.displayAlertWithMessage(title: "Error", message: "Timed out")
+                }
+            })
             indicatorContainerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
             indicatorContainerView!.backgroundColor = UIColor.clear
             activityIndicator = UIActivityIndicatorView(style: .gray)
@@ -321,13 +350,28 @@ class ShowProfileViewController: UITableViewController, UITextFieldDelegate, Sho
     func didSelectWebIDInPopUpViewController(_ viewController: DisplayRecentsPopupViewController, webID: String) {
         let header = tableView.tableHeaderView as! ShowProfileHeaderView
         header.webIDTextField!.text = webID
+        tableSections = [Section]()
+        tableView.reloadData()
         header.webIDTextField?.becomeFirstResponder()
+        let _ = header.webIDTextField?.delegate?.textFieldShouldReturn!(header.webIDTextField!)
         dismiss(animated: true, completion: nil)
     }
 
     
     func didCancelPopupViewController() {
          dismiss(animated: true, completion: nil)
+    }
+    
+    
+    // MARK: - Alerts
+    
+    func displayAlertWithMessage(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: { _ in
+            NSLog("The \"OK\" alert occured.")
+            self.stopActivityIndicator()
+        }))
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
