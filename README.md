@@ -1,8 +1,6 @@
 #  Solid profile browser
 
-For iPhone.  Screenshot:
-
-<img src="Screenshot.jpg" width="200" height="300" />
+For iPhone.  
 
 
 
@@ -16,4 +14,8 @@ For iPhone.  Screenshot:
 - will not handle `http://` (must be a `https://` webid)
 - when examing triple format, it is possible to edit the triple object; when Save is pressed the app will attemmpt to authenticate the user but a patched solid server is required for this
 
+
+
+## Screenshot
  
+ <img src="Screenshot.jpg" width="400" height="600" />
