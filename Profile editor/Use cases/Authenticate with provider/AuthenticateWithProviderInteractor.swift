@@ -120,7 +120,7 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
 
        writeToTextView(status: "------------------------\n\nRequesting registration...\n\n", message: nil)
         
-        var URLRequest = request.urlRequest()
+        let URLRequest = request.urlRequest()
         
         if URLRequest == nil {
             // A problem occurred deserializing the response/JSON.
@@ -162,7 +162,7 @@ class AuthenticateWithProviderInteractor: NSObject, AuthenticateWithProviderBusi
                 // HTTP 400 may indicate an OpenID Connect Dynamic Client Registration 1.0 Section 3.3 error
                 // response, checks for that
                 if HTTPURLResponse?.statusCode == 400 {
-                    var json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : (NSObject & NSCopying)]
+                    let json = ((try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : (NSObject & NSCopying)]) as [String : (NSObject & NSCopying)]??)
                     // if the HTTP 400 response parses as JSON and has an 'error' key, it's an OAuth error
                     // these errors are special as they indicate a problem with the authorization grant
                     if json?![OIDOAuthErrorFieldError] != nil {

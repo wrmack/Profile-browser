@@ -63,6 +63,7 @@ App tries to assess whether the object is browseable and if so a link button is 
         attString.append(NSAttributedString(string: "Limitations\n", attributes: heading2Atts))
         attString.append(NSAttributedString(string: """
 When examing triple format, it is possible to edit the triple object; when Save is pressed the app will attemmpt to authenticate the user but a patched solid server is required for this
+Cannot use the browser to register for an account.  
 """, attributes: normAtts))
         
         let viewModel = ShowInfo.Info.ViewModel(attString: attString)

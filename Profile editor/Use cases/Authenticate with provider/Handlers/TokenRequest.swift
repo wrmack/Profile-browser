@@ -348,7 +348,7 @@ class TokenRequest: NSObject, Codable {
         let eClaim = "AQAB"
         
         // Get public key modulus.  Used https://stackoverflow.com/a/43225656
-        var pubKeyAtts = SecKeyCopyAttributes(publicKey!) as! [String : Any]
+        let pubKeyAtts = SecKeyCopyAttributes(publicKey!) as! [String : Any]
         let keySize = pubKeyAtts[kSecAttrKeySizeInBits as String] as! Int
         let pubKeyData = pubKeyAtts[kSecValueData as String] as! Data
         var modulus = pubKeyData.subdata(in: 8..<(pubKeyData.count - 5))

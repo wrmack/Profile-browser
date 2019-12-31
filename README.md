@@ -14,7 +14,8 @@ For iPhone.
 
 ## Limitations
 - will not handle `http://` (must be a `https://` webid)
-- when examing triple format, it is possible to edit the triple object; when Save is pressed the app will attemmpt to authenticate the user but a patched solid server is required for this
+- when examining triple format, it is possible to edit the triple object; when Save is pressed the app will attemmpt to authenticate the user but a patched solid server is required for this
+- cannot use the browser to register for an account
 
 
 

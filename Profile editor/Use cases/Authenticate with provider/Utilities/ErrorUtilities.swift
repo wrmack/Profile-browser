@@ -197,7 +197,7 @@ class ErrorUtilities {
     
     
     static func OAuthErrorCode(string errorCode: String)-> ErrorCodeOAuth {
-        var errorCodes = [
+        let errorCodes = [
             "invalid_request": (ErrorCodeOAuth.InvalidRequest),
             "unauthorized_client": (ErrorCodeOAuth.UnauthorizedClient),
             "access_denied": (ErrorCodeOAuth.AccessDenied),

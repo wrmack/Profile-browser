@@ -420,10 +420,12 @@
 				TargetAttributes = {
 					411C9FF42220B553000D72B8 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1130;
 						TestTargetID = 419729DB220D1CEB0073EF55;
 					};
 					419729DB220D1CEB0073EF55 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1130;
 					};
 				};
 			};
@@ -584,7 +586,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.wm.ProfileEditorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Profile editor.app/Profile editor";
 			};
@@ -604,7 +606,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.wm.ProfileEditorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Profile editor.app/Profile editor";
 			};
@@ -739,7 +741,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.wm.Profile-editor";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -757,7 +759,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.wm.Profile-editor";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;

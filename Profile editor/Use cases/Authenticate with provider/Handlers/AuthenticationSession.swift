@@ -179,7 +179,7 @@ class AuthenticationSession: NSObject, URLSessionDelegate  {
     
     func fetchTokensFromTokenEndpoint(authorizationResponse: AuthorizationResponse?, callback: @escaping (AuthState?, Error?) -> Void)  {
         let tokenExchangeRequest = TokenRequest(configuration: authorizationRequest!.configuration, grantType: kGrantTypeAuthorizationCode, authorizationCode: authorizationResponse!.authorizationCode, redirectURL: authorizationRequest!.redirectURL, clientID: authorizationRequest!.clientID, clientSecret: authorizationRequest!.clientSecret, scope: nil, refreshToken: nil, codeVerifier: authorizationRequest!.codeVerifier, nonce: authorizationRequest?.nonce, additionalParameters: authorizationRequest!.additionalParameters)
-        var URLRequest = tokenExchangeRequest.urlRequest()
+        let URLRequest = tokenExchangeRequest.urlRequest()
         print("URLRequest for tokens: \(tokenExchangeRequest.description(request: URLRequest)!)")
         
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
@@ -205,7 +205,7 @@ class AuthenticationSession: NSObject, URLSessionDelegate  {
             let serverError = ErrorUtilities.HTTPError(HTTPResponse: HTTPURLResponse!, data: data)
             // HTTP 4xx may indicate an RFC6749 Section 5.2 error response, attempts to parse as such.
             if statusCode! >= 400 && statusCode! < 500 {
-                var json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : (NSObject & NSCopying)]
+                let json = ((try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : (NSObject & NSCopying)]) as [String : (NSObject & NSCopying)]??)
                 // If the HTTP 4xx response parses as JSON and has an 'error' key, it's an OAuth error.
                 // These errors are special as they indicate a problem with the authorization grant.
                 if json?![OIDOAuthErrorFieldError] != nil {

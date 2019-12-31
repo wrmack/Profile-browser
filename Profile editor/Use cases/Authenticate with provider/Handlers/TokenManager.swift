@@ -99,7 +99,7 @@ class TokenManager {
     
     func perform(tokenRequest request: TokenRequest?, originalAuthorizationResponse authorizationResponse: AuthorizationResponse?, callback: @escaping (TokenResponse?, NSError?) -> Void) {
         
-        var URLRequest: URLRequest = request!.urlRequest()
+        let URLRequest: URLRequest = request!.urlRequest()
         //        AppAuthRequestTrace(@"Token Request: %@\nHeaders:%@\nHTTPBody: %@",
         //                             URLRequest.URL,
         //                             URLRequest.allHTTPHeaderFields,
@@ -133,7 +133,7 @@ class TokenManager {
                 // HTTP 4xx may indicate an RFC6749 Section 5.2 error response, attempts to parse as such.
                 if statusCode! >= 400 && statusCode! < 500 {
  
-                    var json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : (NSObject & NSCopying)]
+                    let json = ((try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : (NSObject & NSCopying)]) as [String : (NSObject & NSCopying)]??)
                     // If the HTTP 4xx response parses as JSON and has an 'error' key, it's an OAuth error.
                     // These errors are special as they indicate a problem with the authorization grant.
                     if json?![OIDOAuthErrorFieldError] != nil {
@@ -158,7 +158,7 @@ class TokenManager {
             }
             
             //           let jsonDeserializationError: NSError?
-            let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : (NSObject & NSCopying)]
+            let json = ((try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : (NSObject & NSCopying)]) as [String : (NSObject & NSCopying)]??)
             //            if jsonDeserializationError != nil {
             //                // A problem occurred deserializing the response/JSON.
             //                let errorDescription = "JSON error parsing token response: \(jsonDeserializationError?.localizedDescription ?? "")"

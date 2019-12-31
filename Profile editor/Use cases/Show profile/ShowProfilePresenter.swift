@@ -177,7 +177,7 @@ class ShowProfilePresenter: ShowProfilePresentationLogic {
             let objURL = URL(string: objString!)
             
             if objString!.contains("#") && objURL!.host == hostURL {
-                if objString == me {
+                if objString == me && formattedName != nil {
                     objString = formattedName
                 }
                 else {
